@@ -14,11 +14,11 @@ export const BORDER_PRESETS = Object.freeze([
 ]);
 
 const INTERACTION_GUIDE = Object.freeze([
-    ['Left-Click Running App Icon', 'Focus window, cycle open windows, or toggle minimize'],
-    ['Middle-Click App Icon', 'Launch a new window instance, minimize, or quit application'],
-    ['Scroll Wheel Over App Icon', 'Cycle through the application windows or switch workspaces'],
-    ['Right-Click Dock or Show Apps', 'Quick menu for Auto-Hide, Screen Edge, and Reef Settings &amp; About…'],
-    ['Push Pointer to Screen Edge', 'Reveal auto-hidden dock via Wayland pressure barrier'],
+    ['Left-Click Running App Icon', 'Focus window, cycle open windows, or toggle minimize', 'Left-Click'],
+    ['Middle-Click App Icon', 'Launch a new window instance, minimize, or quit application', 'Middle-Click'],
+    ['Scroll Wheel Over App Icon', 'Cycle through the application windows or switch workspaces', 'Scroll Wheel'],
+    ['Right-Click Dock or Show Apps', 'Quick menu for Auto-Hide, Screen Edge, and Reef Settings &amp; About…', 'Right-Click'],
+    ['Push Pointer to Screen Edge', 'Reveal auto-hidden dock via Wayland pressure barrier', 'Edge Pressure'],
 ]);
 
 function make_combo_row(title, subtitle, items, active_idx, on_change) {
@@ -131,12 +131,12 @@ export function build_clicks_page(ext_settings, settings, signals) {
         title: 'Quick Interaction Reference',
         description: 'Everyday mouse and edge gestures built into Reef',
     });
-    for (const [gesture, desc] of INTERACTION_GUIDE) {
-        const row = new Adw.ActionRow({ title: gesture });
+    for (const [gesture, desc, badge_text] of INTERACTION_GUIDE) {
+        const row = new Adw.ActionRow({ title: gesture, subtitle: desc });
         const badge = new Gtk.Label({
-            label: desc,
+            label: badge_text,
             valign: Gtk.Align.CENTER,
-            css_classes: ['dim-label'],
+            css_classes: ['dim-label', 'monospace'],
         });
         row.add_suffix(badge);
         guide_group.add(row);

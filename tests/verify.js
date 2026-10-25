@@ -136,10 +136,12 @@ function verify_process_boundaries_and_invariants() {
         'name="dock-position"', 'name="intellihide-mode"', 'name="border-color-rgba"',
         "'rgb(255,0,0)'", 'Gruvbox Amber', 'Kelp Emerald', 'Ocean Cyan', 'Coral Red',
         'v1.0.0', 'match_preset(', 'Screen Edge &amp; Intelligent Auto-Hide',
-        'Support &amp; Community',
+        'Support &amp; Community', 'Adw.ActionRow({ title: gesture, subtitle: desc })',
     ];
     for (const req of reqs) assert(combined.includes(req), `Missing invariant: ${req}`);
     assert(!combined.includes('Rust installer') && !combined.includes('cargo install'), 'No Rust CLI reference');
+    const prefs_pages = read_text(GLib.build_filenamev([EXT_ROOT, 'ui/settings/prefs_pages.js']));
+    assert(!/new Gtk\.Label\(\{[^}]*&amp;/s.test(prefs_pages), 'Gtk.Label must not contain raw &amp; without use_markup');
 }
 
 async function verify_behavioral_and_gtk_suite() {
