@@ -1,0 +1,31 @@
+.reef-dock-container {
+    margin: 0px;
+    padding: 0px;
+}
+
+.reef-dock-pill #dash .dash-background {
+    margin: 0px;
+    padding: 6px 10px;
+}
+
+.reef-dock-panel #dash .dash-background {
+    margin: 0px;
+    padding: 6px 12px;
+    border-radius: 0px;
+}
+
+.reef-dock-vertical #dash .dash-background {
+    padding: 10px 6px;
+}
+
+.reef-dock-container .dash-item-container .app-well-app,
+.reef-dock-container .dash-item-container .show-apps {
+    padding: 4px;
+}
+
+.reef-dock-container .app-grid-running-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 99px;
+    margin-bottom: 2px;
+}

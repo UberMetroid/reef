@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist>
+  <schema id="org.gnome.shell.extensions.reef" path="/org/gnome/shell/extensions/reef/">
+    <key name="dock-position" type="s">
+      <default>'BOTTOM'</default>
+      <summary>Screen edge position of the Reef dock</summary>
+      <description>Screen edge where the dock is anchored: 'BOTTOM', 'LEFT', 'RIGHT', or 'TOP'.</description>
+    </key>
+
+    <key name="dock-fixed" type="b">
+      <default>false</default>
+      <summary>Keep dock fixed and always visible</summary>
+      <description>When true, the dock stays permanently visible and reserves a Mutter workspace strut. When false, intelligent auto-hide is used.</description>
+    </key>
+
+    <key name="intellihide" type="b">
+      <default>true</default>
+      <summary>Enable intelligent window-dodge auto-hide</summary>
+      <description>When true and dock-fixed is false, the dock stays visible on an empty desktop and hides only when windows overlap its target box.</description>
+    </key>
+
+    <key name="intellihide-mode" type="s">
+      <default>'ALL_WINDOWS'</default>
+      <summary>Intellihide window overlap mode</summary>
+      <description>Which windows trigger intellihide: 'ALL_WINDOWS' (Kelp friendly), 'FOCUSED_WINDOW', or 'MAXIMIZED_ONLY'.</description>
+    </key>
+
+    <key name="require-pressure-to-show" type="b">
+      <default>true</default>
+      <summary>Require pointer edge pressure to reveal hidden dock</summary>
+      <description>When true, uses a Wayland Meta.Barrier pressure threshold along the screen edge to reveal the hidden dock.</description>
+    </key>
+
+    <key name="pressure-threshold" type="u">
+      <default>100</default>
+      <summary>Edge pressure threshold in pixels</summary>
+      <description>Pointer pressure distance (20–500 px) required to trigger dock reveal.</description>
+    </key>
+
+    <key name="autohide-in-fullscreen" type="b">
+      <default>true</default>
+      <summary>Allow edge reveal in fullscreen applications</summary>
+      <description>When true, pushing against the screen edge can reveal the dock even while a fullscreen window is active.</description>
+    </key>
+
+    <key name="extend-height" type="b">
+      <default>false</default>
+      <summary>Extend dock across full screen edge (panel mode)</summary>
+      <description>When false, renders a centered floating pill with a 6px edge margin. When true, stretches the dock across the full monitor edge.</description>
+    </key>
+
+    <key name="multi-monitor" type="b">
+      <default>false</default>
+      <summary>Show Reef dock on all connected monitors</summary>
+      <description>When true, creates a Reef dock instance on every monitor instead of only the primary monitor.</description>
+    </key>
+
+    <key name="dash-max-icon-size" type="u">
+      <default>48</default>
+      <summary>Maximum application icon size in pixels</summary>
+      <description>Maximum size of application icons in the dock (24–64 px).</description>
+    </key>
+
+    <key name="show-apps-at-top" type="b">
+      <default>false</default>
+      <summary>Place Show Apps button at the start of the dock</summary>
+      <description>When true, places the Show Apps launcher button at the left/top of the dock instead of the right/bottom.</description>
+    </key>
+
+    <key name="show-show-apps-button" type="b">
+      <default>true</default>
+      <summary>Show the Show Apps launcher button</summary>
+      <description>Whether the Show Apps grid button is visible in the dock.</description>
+    </key>
+
+    <key name="show-favorites" type="b">
+      <default>true</default>
+      <summary>Show pinned favorite applications</summary>
+      <description>Whether pinned favorite applications are displayed in the dock.</description>
+    </key>
+
+    <key name="show-running" type="b">
+      <default>true</default>
+      <summary>Show running unpinned applications</summary>
+      <description>Whether running applications that are not pinned are displayed in the dock.</description>
+    </key>
+
+    <key name="isolate-workspaces" type="b">
+      <default>false</default>
+      <summary>Isolate running applications to active workspace</summary>
+      <description>When true, running indicators and window cycling only include windows on the currently active workspace.</description>
+    </key>
+
+    <key name="click-action" type="s">
+      <default>'focus-or-cycle'</default>
+      <summary>Left-click action on running application icon</summary>
+      <description>Behavior when left-clicking a running app: 'focus-or-cycle', 'focus-or-minimize', or 'launch'.</description>
+    </key>
+
+    <key name="middle-click-action" type="s">
+      <default>'launch'</default>
+      <summary>Middle-click action on application icon</summary>
+      <description>Behavior when middle-clicking an app icon: 'launch', 'minimize', or 'quit'.</description>
+    </key>
+
+    <key name="scroll-action" type="s">
+      <default>'cycle-windows'</default>
+      <summary>Mouse wheel scroll action over dock icons</summary>
+      <description>Behavior when scrolling over an app icon: 'cycle-windows', 'switch-workspace', or 'none'.</description>
+    </key>
+
+    <key name="background-opacity" type="u">
+      <default>80</default>
+      <summary>Dock pill background opacity percentage</summary>
+      <description>Opacity of the dock background from 0 (transparent) to 100 (solid).</description>
+    </key>
+
+    <key name="show-border" type="b">
+      <default>true</default>
+      <summary>Show accent border around the dock pill</summary>
+      <description>When true, draws a high-contrast border ring around the Reef dock matching Kelp.</description>
+    </key>
+
+    <key name="border-width" type="u">
+      <default>2</default>
+      <summary>Dock border width in pixels</summary>
+      <description>Thickness of the dock border in CSS pixels (0–8 px, default 2 px matching Kelp).</description>
+    </key>
+
+    <key name="border-radius" type="u">
+      <default>16</default>
+      <summary>Dock corner radius in pixels</summary>
+      <description>Corner rounding of the floating dock pill in CSS pixels (0–32 px).</description>
+    </key>
+
+    <key name="border-color-rgba" type="s">
+      <default>'rgb(255,0,0)'</default>
+      <summary>Dock accent border color</summary>
+      <description>CSS RGB/RGBA string for the dock border ring (default Coral Red matching Kelp).</description>
+    </key>
+  </schema>
+</schemalist>
