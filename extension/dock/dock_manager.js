@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Multi-monitor Reef dock coordinator, Overview Dash controller, and Ubuntu Dock coexistence.
 
+import Gio from 'gi://Gio';
+import St from 'gi://St';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import { ExtensionSettings } from '../ui/settings/gsettings.js';
 import { DockContainer } from './dock_container.js';
@@ -19,11 +21,36 @@ export class DockManager {
         this._signals = [];
         this._layout_signals = [];
         this._overview_dash_hidden = false;
+        this._current_style = null;
 
+        this.load_theme();
         this._hide_overview_dash();
         this._bind_settings();
         this._bind_monitors();
         this.rebuild_docks();
+    }
+
+    load_theme() {
+        this.unload_theme();
+        try {
+            const file = Gio.File.new_for_path(`${this.extension.path}/ui/stylesheet.css`);
+            const theme = St.ThemeContext.get_for_stage(global.stage).get_theme();
+            if (theme) {
+                theme.load_stylesheet(file);
+                this._current_style = file;
+            }
+        } catch (err) {
+            console.error(err);
+        }
+    }
+
+    unload_theme() {
+        if (!this._current_style) return;
+        try {
+            const theme = St.ThemeContext.get_for_stage(global.stage).get_theme();
+            if (theme) theme.unload_stylesheet(this._current_style);
+        } catch (_e) { /* ignore */ }
+        this._current_style = null;
     }
 
     has_conflicting_dock_active() {
@@ -136,7 +163,9 @@ export class DockManager {
         this._signals.length = 0;
         this._destroy_docks();
         this._restore_overview_dash();
+        this.unload_theme();
         this.settings = null;
         this.ext_settings = null;
     }
 }
+

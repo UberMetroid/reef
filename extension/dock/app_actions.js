@@ -91,6 +91,7 @@ export class AppActionsController {
 
     _open_quick_menu() {
         if (!this._context_menu) return;
+        this._context_menu._arrowSide = this._popup_side();
         this._context_menu.removeAll();
         const ah_item = new PopupMenu.PopupSwitchMenuItem(_('Intelligent Auto-Hide'), !this.settings.dock_fixed());
         ah_item.connect('toggled', (_item, state) => {
@@ -143,6 +144,7 @@ export class AppActionsController {
             if (!app_icon || !app_icon.app) continue;
             current.add(app_icon);
             app_icon._popupMenuSide = side;
+            if (app_icon._menu) app_icon._menu._arrowSide = side;
             if (this._icon_hooks.has(app_icon)) continue;
             const orig_activate = app_icon.activate.bind(app_icon);
             app_icon.activate = (button) => this._handle_activate(app_icon, button, orig_activate);

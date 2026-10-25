@@ -2,6 +2,7 @@
 // Screen-edge dock chrome actor, native Dash.Dash host, strut manager, and slide animator.
 
 import Clutter from 'gi://Clutter';
+import GLib from 'gi://GLib';
 import St from 'gi://St';
 import * as AppFavorites from 'resource:///org/gnome/shell/ui/appFavorites.js';
 import * as Dash from 'resource:///org/gnome/shell/ui/dash.js';
@@ -135,12 +136,9 @@ export class DockContainer {
         this._sync_chrome();
         const is_vert = this.settings.is_vertical(), extend = this.settings.extend_height();
         const orient = is_vert ? Clutter.Orientation.VERTICAL : Clutter.Orientation.HORIZONTAL;
-
-        this.actor.style_class = [
-            'reef-dock-container',
-            extend ? 'reef-dock-panel' : 'reef-dock-pill',
-            is_vert ? 'reef-dock-vertical' : 'reef-dock-horizontal',
-        ].join(' ');
+        const cls = ['reef-dock-container', extend ? 'reef-dock-panel' : 'reef-dock-pill'];
+        cls.push(is_vert ? 'reef-dock-vertical' : 'reef-dock-horizontal');
+        this.actor.style_class = cls.join(' ');
         this.actor.orientation = orient;
 
         if (this.dash._dashContainer) {
@@ -149,6 +147,14 @@ export class DockContainer {
             this.dash._dashContainer.y_align = Clutter.ActorAlign.CENTER;
         }
         if (this.dash._box?.layout_manager) this.dash._box.layout_manager.orientation = orient;
+        const sizer = this.dash._background?.get_first_child?.();
+        if (sizer && this.dash._showAppsIcon?.icon && this.dash._dashContainer) {
+            const c_icon = is_vert ? Clutter.BindCoordinate.WIDTH : Clutter.BindCoordinate.HEIGHT;
+            const c_dash = is_vert ? Clutter.BindCoordinate.HEIGHT : Clutter.BindCoordinate.WIDTH;
+            sizer.clear_constraints();
+            sizer.add_constraint(new Clutter.BindConstraint({ source: this.dash._showAppsIcon.icon, coordinate: c_icon }));
+            sizer.add_constraint(new Clutter.BindConstraint({ source: this.dash._dashContainer, coordinate: c_dash }));
+        }
         if (this.dash._showAppsIcon && this.dash._dashContainer) {
             this.dash._showAppsIcon.visible = this.settings.show_show_apps_button();
             this.dash._dashContainer.set_child_at_index(this.dash._showAppsIcon, this.settings.show_apps_at_top() ? 0 : 1);
@@ -157,10 +163,8 @@ export class DockContainer {
 
         const mon = this.monitor, scale = St.ThemeContext.get_for_stage(global.stage).scale_factor || 1;
         const cross_px = Math.round((this.settings.dash_max_icon_size() + 28) * scale);
-        if (mon) {
-            if (is_vert) this.dash.setMaxSize(cross_px, Math.round(mon.height * 0.92));
-            else this.dash.setMaxSize(Math.round(mon.width * 0.92), cross_px);
-        }
+        const span_px = mon ? Math.round((is_vert ? mon.height : mon.width) * 0.92) : 640;
+        if (mon) this.dash.setMaxSize(span_px, cross_px);
         this.dash._queueRedisplay();
         this._position_actor();
         this.pressure?.rebuild();
@@ -171,7 +175,7 @@ export class DockContainer {
         const mon = this.monitor;
         if (!mon) return { x: 0, y: 0, width: 0, height: 0 };
         const pos = this.settings.dock_position(), extend = this.settings.extend_height();
-        const margins = compute_dock_margins(pos, extend);
+        const margins = compute_dock_margins(pos, extend || this.settings.dock_fixed());
         const w = Math.max(64, this.actor.width || 320), h = Math.max(48, this.actor.height || 68);
 
         if (pos === 'TOP') {
@@ -203,7 +207,6 @@ export class DockContainer {
 
     is_menu_open() { return Boolean(this.actions?.is_menu_open()); }
     reveal_from_edge() { this._edge_revealed = true; this._slide(true); }
-
     EndEdgeReveal() { this._edge_revealed = false; this.intellihide?.update(); this.sync_visibility(); }
 
     sync_visibility() {
@@ -241,6 +244,8 @@ export class DockContainer {
         this._signals.length = 0;
         this.pressure?.destroy(); this.intellihide?.destroy(); this.actions?.destroy();
         this.pressure = null; this.intellihide = null; this.actions = null;
+        if (this.dash?._showLabelTimeoutId > 0) GLib.source_remove(this.dash._showLabelTimeoutId);
+        if (this.dash?._resetHoverTimeoutId > 0) GLib.source_remove(this.dash._resetHoverTimeoutId);
         if (this._chrome_added) {
             try { Main.layoutManager.removeChrome(this.actor); } catch (_e) { /* ignore */ }
             this._chrome_added = false;
@@ -248,3 +253,4 @@ export class DockContainer {
         this.actor?.destroy(); this.actor = null; this.dash = null;
     }
 }
+

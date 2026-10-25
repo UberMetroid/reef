@@ -137,6 +137,7 @@ function verify_process_boundaries_and_invariants() {
         "'rgb(255,0,0)'", 'Gruvbox Amber', 'Kelp Emerald', 'Ocean Cyan', 'Coral Red',
         'v1.0.0', 'match_preset(', 'Screen Edge &amp; Intelligent Auto-Hide',
         'Support &amp; Community', 'Adw.ActionRow({ title: gesture, subtitle: desc })',
+        'this.unload_theme()', 'load_stylesheet(file)', 'sizer.clear_constraints()',
     ];
     for (const req of reqs) assert(combined.includes(req), `Missing invariant: ${req}`);
     assert(!combined.includes('Rust installer') && !combined.includes('cargo install'), 'No Rust CLI reference');
@@ -205,20 +206,27 @@ async function verify_behavioral_and_gtk_suite() {
     try {
         const Gtk = (await import('gi://Gtk?version=4.0')).default;
         const Adw = (await import('gi://Adw?version=1')).default;
-        const ReefPreferences = (await import('../extension/prefs.js')).default;
         if (Gtk.init_check()) {
             Adw.init();
-            const win = new Adw.PreferencesWindow();
-            const fake_prefs = { getSettings: () => ext_settings };
-            ReefPreferences.prototype.fillPreferencesWindow.call(fake_prefs, win);
             const signals = [];
             const p1 = build_clicks_page(ext_settings, s, signals);
             const p2 = build_about_page();
             assert(p1.get_title() === 'Clicks & Scroll' && p2.get_title() === 'About & Support', 'GTK4 pages built');
+            const walk_labels = (w) => {
+                if (!w) return;
+                if (w instanceof Gtk.Label) {
+                    const txt = w.get_text();
+                    assert(!txt.includes('&amp;'), `Unescaped &amp; in rendered Gtk.Label text: ${txt}`);
+                }
+                for (let c = w.get_first_child?.(); c; c = c.get_next_sibling?.()) walk_labels(c);
+            };
+            walk_labels(p1);
+            walk_labels(p2);
             for (const [obj, sig] of signals) obj.disconnect(sig);
-            win.close();
         }
-    } catch (_e) { /* headless environment without display */ }
+    } catch (e) {
+        if (String(e).includes('Verification failed')) throw e;
+    }
 
     dst_xml.delete(null);
     Gio.File.new_for_path(GLib.build_filenamev([tmp_dir, 'gschemas.compiled'])).delete(null);
@@ -231,3 +239,4 @@ verify_page_rules_and_lint(js_files, dirs);
 verify_process_boundaries_and_invariants();
 await verify_behavioral_and_gtk_suite();
 print(`OK: verified ${js_files.length} JS pages across ${dirs.length} directories and all headless behavioral suites.`);
+
