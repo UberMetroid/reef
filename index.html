@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reef — Wayland-Native Intelligent Dock for GNOME 45–50</title>
+  <meta name="description" content="Lightweight, Wayland-native intelligent dock for GNOME Shell 45–50 with auto-hide pressure barriers, Kelp-friendly window-dodge intellihide, scroll window cycling, and custom pill styling.">
+  <style>
+    :root {
+      --bg: #0b0d10;
+      --surface: #12161c;
+      --surface-alt: #181d25;
+      --border: #262e3b;
+      --accent: #ff2a2a;
+      --reef: #6ad7e1;
+      --kelp: #2ee59d;
+      --text: #eef2f6;
+      --muted: #9aa5b4;
+      --mono: ui-monospace, "JetBrains Mono", "Fira Code", SFMono-Regular, Menlo, Consolas, monospace;
+      --sans: system-ui, -apple-system, BlinkMacSystemFont, "Inter", "Cantarell", sans-serif;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: var(--reef); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .container { max-width: 1080px; margin: 0 auto; padding: 0 24px; }
+    header {
+      border-bottom: 1px solid var(--border);
+      background: rgba(11, 13, 16, 0.88);
+      backdrop-filter: blur(10px);
+      position: sticky;
+      top: 0;
+      z-index: 20;
+    }
+    .nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 64px;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      font-size: 1.15rem;
+      color: var(--text);
+    }
+    .brand-badge {
+      font-family: var(--mono);
+      font-size: 0.75rem;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: var(--surface-alt);
+      border: 1px solid var(--border);
+      color: var(--reef);
+    }
+    .nav-links { display: flex; gap: 20px; font-size: 0.92rem; }
+    .nav-links a { color: var(--muted); }
+    .nav-links a:hover { color: var(--text); text-decoration: none; }
+    .hero { padding: 72px 0 56px; text-align: center; }
+    .eyebrow {
+      display: inline-block;
+      font-family: var(--mono);
+      font-size: 0.8rem;
+      color: var(--reef);
+      background: rgba(106, 215, 225, 0.1);
+      border: 1px solid rgba(106, 215, 225, 0.3);
+      padding: 4px 12px;
+      border-radius: 999px;
+      margin-bottom: 20px;
+    }
+    h1 {
+      font-size: clamp(2.2rem, 5vw, 3.4rem);
+      line-height: 1.12;
+      letter-spacing: -0.02em;
+      max-width: 820px;
+      margin: 0 auto 18px;
+    }
+    .subtitle {
+      color: var(--muted);
+      font-size: 1.12rem;
+      max-width: 720px;
+      margin: 0 auto 32px;
+    }
+    .cta-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 14px;
+      margin-bottom: 48px;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 22px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      transition: transform 0.12s ease, border-color 0.12s ease;
+    }
+    .btn:hover { transform: translateY(-1px); border-color: var(--muted); text-decoration: none; }
+    .btn-primary {
+      background: var(--reef);
+      color: #051317;
+      border-color: var(--reef);
+    }
+    .desktop-frame {
+      background: #07090b;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6);
+      text-align: left;
+      position: relative;
+    }
+    .gnome-bar {
+      background: #13171e;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 14px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      border-bottom: 1px solid var(--border);
+    }
+    .workspace-area {
+      height: 280px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      align-items: center;
+      background: radial-gradient(circle at 50% 35%, #131b26 0%, #090b0e 75%);
+    }
+    .dock-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 18px;
+      border-radius: 16px;
+      background: rgba(24, 24, 28, 0.85);
+      border: 2px solid var(--accent);
+      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.55);
+      font-family: var(--mono);
+      font-size: 0.82rem;
+    }
+    .dock-icon {
+      padding: 8px 12px;
+      border-radius: 10px;
+      background: var(--surface-alt);
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+    section { padding: 64px 0; border-top: 1px solid var(--border); }
+    h2 { font-size: 1.85rem; margin-bottom: 12px; letter-spacing: -0.01em; }
+    .section-lead { color: var(--muted); margin-bottom: 32px; max-width: 680px; }
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+      gap: 18px;
+    }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 22px;
+    }
+    .card h3 { font-size: 1.08rem; margin-bottom: 8px; color: var(--text); }
+    .card p { color: var(--muted); font-size: 0.93rem; }
+    pre {
+      background: #080a0d;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      overflow-x: auto;
+      font-family: var(--mono);
+      font-size: 0.85rem;
+      color: #d7e0ea;
+      margin-top: 12px;
+    }
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 36px 0;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container nav">
+      <div class="brand">
+        <span>🪸 Reef</span>
+        <span class="brand-badge">v1.0.0 · GNOME 45–50</span>
+      </div>
+      <nav class="nav-links">
+        <a href="#features">Features</a>
+        <a href="#install">Install</a>
+        <a href="https://ubermetroid.github.io/kelp/">Kelp Tiler</a>
+        <a href="https://ubermetroid.github.io/tuition-not-coffee">🎓 Tuition, Not Coffee</a>
+        <a href="https://github.com/UberMetroid/reef">GitHub</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="hero" style="border-top: none;">
+      <span class="eyebrow">reef@ubermetroid.github.io · Wayland-First · Zero Subprocesses</span>
+      <h1>Intelligent Screen-Edge Dock Built to Pair with Kelp</h1>
+      <p class="subtitle">
+        Reef turns GNOME Shell's Overview Dash into a fast screen-edge dock with Wayland pressure barriers,
+        Kelp-friendly window-dodge intellihide (<code>ALL_WINDOWS</code>), scroll-wheel window cycling, and a 4-tab Libadwaita Settings &amp; About dialog.
+      </p>
+      <div class="cta-row">
+        <a class="btn btn-primary" href="https://github.com/UberMetroid/reef/releases/latest">⬇ Download Reef v1.0.0 (.zip)</a>
+        <a class="btn" href="https://github.com/UberMetroid/reef">⭐ Star on GitHub</a>
+        <a class="btn" href="https://ubermetroid.github.io/tuition-not-coffee">🎓 Tuition, Not Coffee — Help send my daughter to college</a>
+      </div>
+
+      <div class="desktop-frame">
+        <div class="gnome-bar">
+          <span>Activities</span>
+          <span>GNOME 45–50 Wayland</span>
+          <span style="color: var(--kelp);">Kelp + Reef Ready</span>
+        </div>
+        <div class="workspace-area">
+          <div class="dock-pill">
+            <span class="dock-icon">Terminal •</span>
+            <span class="dock-icon">Browser ••</span>
+            <span class="dock-icon">Code •</span>
+            <span class="dock-icon">Files</span>
+            <span class="dock-icon" style="border-color: var(--reef); color: var(--reef);">⋮⋮⋮ Show Apps</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="features">
+      <h2>Engineered for Kelp &amp; Modern GNOME</h2>
+      <p class="section-lead">Derived from Dash to Dock and stripped of ~85% of legacy GNOME 3 / Unity bloat.</p>
+      <div class="grid-3">
+        <div class="card">
+          <h3>Kelp-Friendly Intellihide</h3>
+          <p>Defaults to <code>ALL_WINDOWS</code> dodge mode so the dock stays visible on an empty desktop and slides away whenever any tiled or floating window overlaps—never covering unfocused Seahorse or Octopus columns.</p>
+        </div>
+        <div class="card">
+          <h3>Wayland Edge Pressure</h3>
+          <p>Push the pointer against the screen edge (<code>Bottom</code>, <code>Left</code>, <code>Right</code>, or <code>Top</code>) to reveal the hidden dock smoothly via native <code>Meta.Barrier</code> pressure detection.</p>
+        </div>
+        <div class="card">
+          <h3>Unified Kelp Styling</h3>
+          <p>Matches Kelp out of the box with a <code>2px</code> Coral Red border (<code>rgb(255,0,0)</code>), <code>6px</code> floating margin, <code>16px</code> corner radius, and 1-click presets (<em>Gruvbox Amber</em>, <em>Kelp Emerald</em>, <em>Ocean Cyan</em>, <em>Coral Red</em>).</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="install">
+      <h2>Quick Install</h2>
+      <p class="section-lead">Install from the latest GitHub Release bundle across Fedora, Debian, Ubuntu, Arch, openSUSE, and NixOS:</p>
+      <pre>gnome-extensions install --force reef@ubermetroid.github.io.shell-extension.zip
+gnome-extensions enable reef@ubermetroid.github.io</pre>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container">
+      <p>
+        <strong>Reef</strong> (<code>reef@ubermetroid.github.io</code>) · Released under <a href="https://github.com/UberMetroid/reef/blob/main/LICENSE">GPL-3.0-or-later</a> · Derived from Dash to Dock (Michele Gaio, Canonical Ltd., &amp; contributors).<br>
+        <a href="https://github.com/UberMetroid/reef">⭐ Star on GitHub</a> · <a href="https://ubermetroid.github.io/tuition-not-coffee">🎓 Tuition, Not Coffee — Help send my daughter to college</a> · <a href="https://ubermetroid.github.io/kelp/">Kelp Auto-Tiler</a>
+      </p>
+    </div>
+  </footer>
+</body>
+</html>
