@@ -119,7 +119,7 @@ export class EdgePressureController {
         }
         Main.layoutManager.addChrome(this._edge_strip, {
             affectsStruts: false,
-            trackFullscreen: true,
+            trackFullscreen: false,
         });
         this._strip_sig = this._edge_strip.connect('notify::hover', () => {
             if (this._edge_strip.hover) this._on_edge_triggered();

@@ -125,6 +125,7 @@ export class DockManager {
 
     rebuild_docks() {
         this._destroy_docks();
+        this._hide_overview_dash();
         const monitors = Main.layoutManager.monitors || [];
         if (monitors.length === 0) return;
 
@@ -139,6 +140,7 @@ export class DockManager {
     }
 
     refresh_all() {
+        this._hide_overview_dash();
         for (const dock of this.docks) {
             dock.apply_layout_and_style();
             dock.sync_visibility();

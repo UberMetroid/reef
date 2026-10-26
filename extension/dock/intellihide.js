@@ -136,7 +136,7 @@ export class IntellihideTracker {
             const on_ws = Boolean(meta.is_on_all_workspaces?.()) || (!ws || meta.get_workspace?.() === ws);
             if (!on_ws) continue;
             const wtype = meta.get_window_type?.() ?? 0;
-            if (wtype !== 0 && wtype !== 4) continue;
+            if (wtype !== 0 && wtype !== 3 && wtype !== 4) continue;
             const rect = meta.get_frame_rect ? meta.get_frame_rect() : { x: 0, y: 0, width: 0, height: 0 };
             list.push({
                 rect: { x: rect.x, y: rect.y, width: rect.width, height: rect.height },

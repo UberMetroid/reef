@@ -32,7 +32,7 @@ Derived from [Dash to Dock](https://github.com/ubuntu/dash-to-dock) (`micheleg/d
 
 ## Quick Install
 
-Download `reef@ubermetroid.github.io.shell-extension.zip` from [**GitHub Releases (`v1.0.1`)**](https://github.com/UberMetroid/reef/releases/latest):
+Download `reef@ubermetroid.github.io.shell-extension.zip` from [**GitHub Releases (`v1.0.2`)**](https://github.com/UberMetroid/reef/releases/latest):
 
 ```bash
 gnome-extensions install --force reef@ubermetroid.github.io.shell-extension.zip
@@ -54,7 +54,7 @@ gnome-extensions prefs reef@ubermetroid.github.io
 | **1. Dock & Behavior** | Screen Edge (`Bottom`, `Left`, `Right`, `Top`), Fixed Dock vs. Intelligent Auto-Hide, Intellihide Dodge Mode (`All Windows — Kelp Friendly`, `Focused Application Windows Only`, `Maximized & Fullscreen Windows Only`), Edge Pressure toggle & threshold (`20–500 px`), Fullscreen Reveal toggle, Extend to Screen Edges (`Panel Mode`), Multi-Monitor toggle, and **Reset to Reef Defaults**. |
 | **2. Icons & Appearance** | Max Icon Size (`24–64 px`), Show Apps Button visibility & start/end placement, Pinned Favorites toggle, Running Unpinned Apps toggle, Workspace Isolation toggle, Background Opacity (`0–100%`), Accent Border toggle, Border Width (`0–8 px`), Corner Radius (`0–32 px`), Custom RGBA Color Picker, and **Quick Color Presets** (*Gruvbox Amber*, *Kelp Emerald*, *Ocean Cyan*, *Coral Red*). |
 | **3. Clicks & Scroll** | Left-Click Action (`Focus or Cycle Windows`, `Focus or Minimize`, `Launch New Window`), Middle-Click Action (`Launch New Window`, `Minimize`, `Quit Application`), Scroll Wheel Action (`Cycle Application Windows`, `Switch Active Workspace`, `Disabled`), and Quick Interaction Reference. |
-| **4. About & Support** | Release version (`v1.0.1`), `GPL-3.0-or-later` license & Dash to Dock attribution, **Star Reef on GitHub**, **Tuition, Not Coffee — Help send my daughter to college**, **Project Website**, and **Report an Issue**. |
+| **4. About & Support** | Release version (`v1.0.2`), `GPL-3.0-or-later` license & Dash to Dock attribution, **Star Reef on GitHub**, **Tuition, Not Coffee — Help send my daughter to college**, **Project Website**, and **Report an Issue**. |
 
 ---
 
