@@ -138,7 +138,7 @@ function verify_process_boundaries_and_invariants() {
         'FOCUSED_WINDOW', 'MAXIMIZED_ONLY', '"45"', '"50"', '"settings-schema": "org.gnome.shell.extensions.reef"',
         'name="dock-position"', 'name="intellihide-mode"', 'name="border-color-rgba"',
         "'rgb(255,0,0)'", 'Gruvbox Amber', 'Kelp Emerald', 'Ocean Cyan', 'Coral Red',
-        'v1.0.3', 'match_preset(', 'Screen Edge &amp; Intelligent Auto-Hide',
+        'v1.0.4', 'match_preset(', 'Screen Edge &amp; Intelligent Auto-Hide',
         'Support &amp; Community', 'Adw.ActionRow({ title: gesture, subtitle: desc })',
         'this.unload_theme()', 'load_stylesheet(file)', 'sizer.clear_constraints()',
         '.reef-dock-container #dash .dash-item-container .overview-tile',

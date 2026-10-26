@@ -52,13 +52,15 @@ export class DockContainer {
         };
         const on_enter = () => { this.pressure?.cancel_hide_timer(); return Clutter.EVENT_PROPAGATE; };
         const on_leave = () => { this.pressure?.schedule_hide_check(); return Clutter.EVENT_PROPAGATE; };
+        const q_pos = () => this._queue_position();
+        for (const a of [this.actor, this.dash, this.dash._dashContainer, this.dash._background]) {
+            if (a) this._signals.push([a, a.connect('notify::width', q_pos)], [a, a.connect('notify::height', q_pos)]);
+        }
         this._signals.push(
             [this.actor, this.actor.connect('notify::hover', on_hover)],
             [this.dash, this.dash.connect('notify::hover', on_hover)],
             [this.actor, this.actor.connect('enter-event', on_enter)],
             [this.actor, this.actor.connect('leave-event', on_leave)],
-            [this.actor, this.actor.connect('notify::width', () => this._queue_position())],
-            [this.actor, this.actor.connect('notify::height', () => this._queue_position())],
         );
     }
     _queue_position() {
@@ -110,9 +112,20 @@ export class DockContainer {
                 this.settings.is_vertical(), this.dash.iconSize, this.settings.is_dark(),
             );
         }
-        this.actions?.sync_icons(); this._position_actor();
+        this.actions?.sync_icons(); this._sync_sizer_constraints(); this._position_actor();
     }
-
+    _sync_sizer_constraints() {
+        const sizer = this.dash._background?.get_first_child?.(), dc = this.dash._dashContainer;
+        const first = this.dash._box?.get_first_child?.()?.child?._delegate?.icon, sa = this.dash._showAppsIcon?.icon;
+        const icon_src = (this.settings.show_show_apps_button() ? sa : first) ?? sa;
+        if (!sizer || !icon_src || !dc) return;
+        const is_vert = this.settings.is_vertical(), extend = this.settings.extend_height();
+        const c_i = is_vert ? Clutter.BindCoordinate.WIDTH : Clutter.BindCoordinate.HEIGHT;
+        const c_d = is_vert ? Clutter.BindCoordinate.HEIGHT : Clutter.BindCoordinate.WIDTH;
+        sizer.clear_constraints();
+        sizer.add_constraint(new Clutter.BindConstraint({ source: icon_src, coordinate: c_i }));
+        sizer.add_constraint(new Clutter.BindConstraint({ source: extend ? this.actor : dc, coordinate: c_d }));
+    }
     _sync_chrome() {
         const want_struts = this.settings.dock_fixed();
         if (this._chrome_added && this._chrome_struts === want_struts) return;
@@ -123,7 +136,6 @@ export class DockContainer {
         Main.layoutManager.addChrome(this.actor, { affectsStruts: want_struts, trackFullscreen: false });
         this._chrome_added = true; this._chrome_struts = want_struts;
     }
-
     apply_layout_and_style() {
         this._sync_chrome();
         const is_vert = this.settings.is_vertical(), extend = this.settings.extend_height();
@@ -156,15 +168,7 @@ export class DockContainer {
             this.dash._background.y_align = extend && is_vert ? fill : align;
             this.dash._background.style = build_dock_background_css(this.settings);
         }
-        const sizer = this.dash._background?.get_first_child?.();
-        if (sizer && this.dash._showAppsIcon?.icon && this.dash._dashContainer) {
-            const c_icon = is_vert ? Clutter.BindCoordinate.WIDTH : Clutter.BindCoordinate.HEIGHT;
-            const c_dash = is_vert ? Clutter.BindCoordinate.HEIGHT : Clutter.BindCoordinate.WIDTH;
-            const span_src = extend ? this.actor : this.dash._dashContainer;
-            sizer.clear_constraints();
-            sizer.add_constraint(new Clutter.BindConstraint({ source: this.dash._showAppsIcon.icon, coordinate: c_icon }));
-            sizer.add_constraint(new Clutter.BindConstraint({ source: span_src, coordinate: c_dash }));
-        }
+        this._sync_sizer_constraints();
         const mon = this.monitor, scale = St.ThemeContext.get_for_stage(global.stage).scale_factor || 1;
         const cross_px = Math.round((this.settings.dash_max_icon_size() + 28) * scale);
         const span_px = mon ? Math.round((is_vert ? mon.height : mon.width) * (extend ? 1.0 : 0.92)) : 640;
@@ -173,22 +177,23 @@ export class DockContainer {
         this.dash._queueRedisplay(); this._position_actor();
         this.pressure?.rebuild(); this.intellihide?.update();
     }
-
     get_static_box() {
         const mon = this.monitor;
         if (!mon) return { x: 0, y: 0, width: 0, height: 0 };
         const pos = this.settings.dock_position(), extend = this.settings.extend_height();
         const edge = EDGE_GEOMETRY[pos] ?? EDGE_GEOMETRY.BOTTOM;
         const margins = compute_dock_margins(pos, extend || this.settings.dock_fixed());
-        const nat_w = Math.max(64, this.dash?._dashContainer?.width || this.actor.width || 320);
-        const nat_h = Math.max(48, this.dash?._dashContainer?.height || this.actor.height || 68);
-        const bw = extend && !edge.is_vert ? mon.width : nat_w;
-        const bh = extend && edge.is_vert ? mon.height : nat_h;
+        const dc = this.dash?._dashContainer, bg = this.dash?._background;
+        const [, dc_w] = dc?.get_preferred_width?.(-1) ?? [0, 0], [, dc_h] = dc?.get_preferred_height?.(-1) ?? [0, 0];
+        const [, bg_w] = bg?.get_preferred_width?.(-1) ?? [0, 0], [, bg_h] = bg?.get_preferred_height?.(-1) ?? [0, 0];
+        const raw_w = Math.max(dc?.width || 0, bg?.width || 0, this.dash?.width || 0, this.actor?.width || 0, dc_w || 0, bg_w || 0);
+        const raw_h = Math.max(dc?.height || 0, bg?.height || 0, this.dash?.height || 0, this.actor?.height || 0, dc_h || 0, bg_h || 0);
+        const nat_w = Math.max(64, raw_w || 320), nat_h = Math.max(48, raw_h || 68);
+        const bw = extend && !edge.is_vert ? mon.width : nat_w, bh = extend && edge.is_vert ? mon.height : nat_h;
         const cx = extend ? mon.x : mon.x + Math.round((mon.width - bw) / 2);
         const cy = extend ? mon.y : mon.y + Math.round((mon.height - bh) / 2);
         return edge.box(mon, bw, bh, cx, cy, margins);
     }
-
     _position_actor() {
         if (!this.actor) return;
         const box = this.get_static_box(), extend = this.settings.extend_height(), is_vert = this.settings.is_vertical();
@@ -197,7 +202,6 @@ export class DockContainer {
         if (want_h !== -1 ? this.actor.height !== want_h : this.actor.fixed_height_set) this.actor.set_height(want_h);
         if (this.actor.x !== box.x || this.actor.y !== box.y) this.actor.set_position(box.x, box.y);
     }
-
     is_pointer_inside() {
         if (!this._is_hidden) {
             if (this.actor.hover || this.dash?.hover || this.pressure?._edge_strip?.hover) return true;
@@ -210,11 +214,9 @@ export class DockContainer {
         const { x1, x2, y1, y2 } = edge.hit(mon ?? fallback, box, pad);
         return px >= x1 && px <= x2 && py >= y1 && py <= y2;
     }
-
     is_menu_open() { return Boolean(this.actions?.is_menu_open()); }
     reveal_from_edge() { this._edge_revealed = true; this._slide(true); }
     EndEdgeReveal() { this._edge_revealed = false; this.intellihide?.update(); this.sync_visibility(); }
-
     sync_visibility() {
         if (this.monitor?.inFullscreen && !this.settings.autohide_in_fullscreen() && !Main.overview.visible) {
             this._slide(false); return;
@@ -224,12 +226,11 @@ export class DockContainer {
             (this.settings.intellihide() && !this.intellihide?.overlapping);
         this._slide(show);
     }
-
     _slide(visible) {
+        this._position_actor();
         const edge = EDGE_GEOMETRY[this.settings.dock_position()] ?? EDGE_GEOMETRY.BOTTOM;
         const box = this.get_static_box(), pad = 12;
-        const tx = visible ? 0 : edge.slide_dx * (box.width + pad);
-        const ty = visible ? 0 : edge.slide_dy * (box.height + pad);
+        const tx = visible ? 0 : edge.slide_dx * (box.width + pad), ty = visible ? 0 : edge.slide_dy * (box.height + pad);
         if (this._is_hidden === !visible && this.actor.translation_x === tx && this.actor.translation_y === ty) return;
         this._is_hidden = !visible; this.actor.reactive = visible;
         this.actor.remove_all_transitions();
@@ -238,7 +239,6 @@ export class DockContainer {
             duration: SLIDE_DURATION_MS, mode: Clutter.AnimationMode.EASE_OUT_QUAD,
         });
     }
-
     destroy() {
         if (this._pos_idle_id > 0) { GLib.source_remove(this._pos_idle_id); this._pos_idle_id = 0; }
         for (const id of this._overview_signals) { try { Main.overview.disconnect(id); } catch (_e) { /* ignore */ } }
