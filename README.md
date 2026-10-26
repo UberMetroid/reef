@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="brand/icon-160.png" width="128" height="128" alt="Reef Icon" />
+</p>
+
 # Reef
 
 [![CI & EGO Bundle Verification](https://github.com/UberMetroid/reef/actions/workflows/ci.yml/badge.svg)](https://github.com/UberMetroid/reef/actions/workflows/ci.yml)
@@ -8,7 +12,7 @@
 
 **Reef** (`reef@ubermetroid.github.io`) is a fast, Wayland-native intelligent dock extension for **GNOME Shell 45–50**. It turns GNOME's Overview Dash into a responsive screen-edge dock with **Wayland pressure barriers**, **Kelp-friendly window-dodge intellihide**, **mouse-wheel window & workspace cycling**, **floating pill or full-edge panel styling**, and a **4-tab Libadwaita Settings & About dialog**.
 
-Derived from [Dash to Dock](https://github.com/ubuntu/dash-to-dock) (`micheleg/dash-to-dock` / `ubuntu/dash-to-dock`) — stripped of ~85% of legacy Ubuntu Unity and GNOME 3 bloat, and engineered under the same strict [`AGENTS.md`](AGENTS.md) Page Rule and EGO standards as [**Kelp**](https://github.com/UberMetroid/kelp).
+Derived from [Dash to Dock](https://github.com/ubuntu/dash-to-dock) (`micheleg/dash-to-dock` / `ubuntu/dash-to-dock`) — stripped of ~85% of legacy Ubuntu Unity and GNOME 3 bloat, and engineered under the same strict [`AGENTS.md`](AGENTS.md) Page Rule and EGO standards as [**Kelp**](https://github.com/UberMetroid/kelp). Official project artwork is archived in [`brand/`](brand/) (`icon-512.png`, `icon-256.png`, `icon-160.png`, `favicon-64.png`).
 
 > 🎓 **Support Reef — [Tuition, Not Coffee — Help send my daughter to college](https://ubermetroid.github.io/tuition-not-coffee)** · 🌐 [**Project Website (`ubermetroid.github.io/reef`)**](https://ubermetroid.github.io/reef/) · ⭐ [**Star UberMetroid/reef on GitHub**](https://github.com/UberMetroid/reef)
 
