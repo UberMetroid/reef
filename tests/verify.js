@@ -121,7 +121,8 @@ function verify_process_boundaries_and_invariants() {
     const check_files = [
         'extension.js', 'prefs.js', 'ui/settings/prefs_pages.js', 'dock/dock_manager.js',
         'dock/dock_container.js', 'dock/intellihide.js', 'dock/edge_pressure.js',
-        'dock/app_actions.js', 'metadata.json', 'schemas/org.gnome.shell.extensions.reef.gschema.xml',
+        'dock/app_actions.js', 'ui/stylesheet.css', 'metadata.json',
+        'schemas/org.gnome.shell.extensions.reef.gschema.xml',
     ];
     const combined = check_files.map((rel) => read_text(GLib.build_filenamev([EXT_ROOT, rel]))).join('\n');
     const reqs = [
@@ -135,9 +136,11 @@ function verify_process_boundaries_and_invariants() {
         'FOCUSED_WINDOW', 'MAXIMIZED_ONLY', '"45"', '"50"', '"settings-schema": "org.gnome.shell.extensions.reef"',
         'name="dock-position"', 'name="intellihide-mode"', 'name="border-color-rgba"',
         "'rgb(255,0,0)'", 'Gruvbox Amber', 'Kelp Emerald', 'Ocean Cyan', 'Coral Red',
-        'v1.0.0', 'match_preset(', 'Screen Edge &amp; Intelligent Auto-Hide',
+        'v1.0.1', 'match_preset(', 'Screen Edge &amp; Intelligent Auto-Hide',
         'Support &amp; Community', 'Adw.ActionRow({ title: gesture, subtitle: desc })',
         'this.unload_theme()', 'load_stylesheet(file)', 'sizer.clear_constraints()',
+        '.reef-dock-container #dash .dash-item-container .overview-tile',
+        'this.dash._background.y_align = align', 'center_base_icon(',
     ];
     for (const req of reqs) assert(combined.includes(req), `Missing invariant: ${req}`);
     assert(!combined.includes('Rust installer') && !combined.includes('cargo install'), 'No Rust CLI reference');

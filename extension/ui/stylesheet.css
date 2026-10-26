@@ -3,6 +3,11 @@
     padding: 0px;
 }
 
+.reef-dock-container #dash {
+    margin: 0px;
+    padding: 0px;
+}
+
 .reef-dock-pill #dash .dash-background {
     margin: 0px;
     padding: 6px 10px;
@@ -15,17 +20,37 @@
 }
 
 .reef-dock-vertical #dash .dash-background {
+    margin: 0px;
     padding: 10px 6px;
 }
 
-.reef-dock-container .dash-item-container .app-well-app,
-.reef-dock-container .dash-item-container .show-apps {
+.reef-dock-container #dash .dash-separator {
+    margin: 0px 4px;
+}
+
+.reef-dock-vertical #dash .dash-separator {
+    margin: 4px 0px;
+}
+
+.reef-dock-container #dash .dash-item-container .app-well-app,
+.reef-dock-container #dash .dash-item-container .overview-tile,
+.reef-dock-container #dash .dash-item-container .show-apps {
+    margin: 0px;
     padding: 4px;
 }
 
-.reef-dock-container .app-grid-running-dot {
+.reef-dock-container #dash .dash-item-container .app-well-app .overview-icon,
+.reef-dock-container #dash .dash-item-container .overview-tile .overview-icon,
+.reef-dock-container #dash .dash-item-container .show-apps .overview-icon {
+    margin: 0px;
+    padding: 6px;
+}
+
+.reef-dock-container #dash .dash-item-container .app-grid-running-dot {
     width: 6px;
     height: 6px;
     border-radius: 99px;
-    margin-bottom: 2px;
+    offset-y: -2px;
+    margin-bottom: 0px;
 }
+

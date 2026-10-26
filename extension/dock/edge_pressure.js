@@ -89,7 +89,6 @@ export class EdgePressureController {
                     directions: coords.direction,
                 });
                 this._pressure_barrier.addBarrier(this._barrier);
-                return;
             } catch (_e) {
                 this._destroy_barrier();
             }
@@ -133,7 +132,7 @@ export class EdgePressureController {
         }
         this.cancel_hide_timer();
         this.dock.reveal_from_edge();
-        this.schedule_hide_check(1800);
+        this.schedule_hide_check(2000);
     }
 
     schedule_hide_check(delay_ms = AUTOHIDE_DELAY_MS) {
