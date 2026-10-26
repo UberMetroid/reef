@@ -9,6 +9,13 @@ import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import * as PopupMenu from 'resource:///org/gnome/shell/ui/popupMenu.js';
 import { MAX_TRACKED_WINDOWS } from './intellihide.js';
 
+const POPUP_SIDES = Object.freeze({
+    TOP: St.Side.TOP,
+    BOTTOM: St.Side.BOTTOM,
+    LEFT: St.Side.LEFT,
+    RIGHT: St.Side.RIGHT,
+});
+
 export function get_app_windows(app, isolate_workspaces) {
     if (!app || typeof app.get_windows !== 'function') return [];
     const raw = app.get_windows();
@@ -75,10 +82,7 @@ export class AppActionsController {
     }
 
     _popup_side() {
-        const pos = this.settings.dock_position();
-        if (pos === 'TOP') return St.Side.TOP;
-        if (pos === 'LEFT') return St.Side.LEFT;
-        return pos === 'RIGHT' ? St.Side.RIGHT : St.Side.BOTTOM;
+        return POPUP_SIDES[this.settings.dock_position()] ?? St.Side.BOTTOM;
     }
 
     is_menu_open() {

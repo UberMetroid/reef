@@ -8,7 +8,7 @@ import * as AppFavorites from 'resource:///org/gnome/shell/ui/appFavorites.js';
 import * as Dash from 'resource:///org/gnome/shell/ui/dash.js';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import * as OverviewControls from 'resource:///org/gnome/shell/ui/overviewControls.js';
-import { build_dock_background_css, build_separator_css, compute_dock_margins } from '../ui/dock_style.js';
+import { build_dock_background_css, build_separator_css, compute_dock_margins, EDGE_GEOMETRY } from '../ui/dock_style.js';
 import { AppActionsController, get_app_windows } from './app_actions.js';
 import { EdgePressureController } from './edge_pressure.js';
 import { IntellihideTracker } from './intellihide.js';
@@ -172,17 +172,15 @@ export class DockContainer {
         const mon = this.monitor;
         if (!mon) return { x: 0, y: 0, width: 0, height: 0 };
         const pos = this.settings.dock_position(), extend = this.settings.extend_height();
+        const edge = EDGE_GEOMETRY[pos] ?? EDGE_GEOMETRY.BOTTOM;
         const margins = compute_dock_margins(pos, extend || this.settings.dock_fixed());
         const nat_w = Math.max(64, this.dash?._dashContainer?.width || this.actor.width || 320);
         const nat_h = Math.max(48, this.dash?._dashContainer?.height || this.actor.height || 68);
-        const bw = extend && (pos === 'TOP' || pos === 'BOTTOM') ? mon.width : nat_w;
-        const bh = extend && (pos === 'LEFT' || pos === 'RIGHT') ? mon.height : nat_h;
+        const bw = extend && !edge.is_vert ? mon.width : nat_w;
+        const bh = extend && edge.is_vert ? mon.height : nat_h;
         const cx = extend ? mon.x : mon.x + Math.round((mon.width - bw) / 2);
         const cy = extend ? mon.y : mon.y + Math.round((mon.height - bh) / 2);
-        if (pos === 'TOP') return { x: cx, y: mon.y + margins.top, width: bw, height: bh };
-        if (pos === 'LEFT') return { x: mon.x + margins.left, y: cy, width: bw, height: bh };
-        if (pos === 'RIGHT') return { x: mon.x + mon.width - bw - margins.right, y: cy, width: bw, height: bh };
-        return { x: cx, y: mon.y + mon.height - bh - margins.bottom, width: bw, height: bh };
+        return edge.box(mon, bw, bh, cx, cy, margins);
     }
 
     _position_actor() {
@@ -199,11 +197,9 @@ export class DockContainer {
             for (const item of this.dash?._box?.get_children?.() ?? []) { if (item?.hover || item?.child?.hover) return true; }
         }
         const [px, py] = global.get_pointer(), box = this.get_static_box(), mon = this.monitor;
-        const pos = this.settings.dock_position(), pad = 8;
-        const x1 = pos === 'LEFT' && mon ? mon.x : box.x - pad;
-        const x2 = pos === 'RIGHT' && mon ? mon.x + mon.width : box.x + box.width + pad;
-        const y1 = pos === 'TOP' && mon ? mon.y : box.y - pad;
-        const y2 = pos === 'BOTTOM' && mon ? mon.y + mon.height : box.y + box.height + pad;
+        const edge = EDGE_GEOMETRY[this.settings.dock_position()] ?? EDGE_GEOMETRY.BOTTOM;
+        const pad = 8, fallback = { x: box.x - pad, y: box.y - pad, width: box.width + pad * 2, height: box.height + pad * 2 };
+        const { x1, x2, y1, y2 } = edge.hit(mon ?? fallback, box, pad);
         return px >= x1 && px <= x2 && py >= y1 && py <= y2;
     }
 
@@ -222,14 +218,10 @@ export class DockContainer {
     }
 
     _slide(visible) {
-        const pos = this.settings.dock_position(), box = this.get_static_box(), pad = 12;
-        let tx = 0, ty = 0;
-        if (!visible) {
-            if (pos === 'TOP') ty = -(box.height + pad);
-            else if (pos === 'LEFT') tx = -(box.width + pad);
-            else if (pos === 'RIGHT') tx = box.width + pad;
-            else ty = box.height + pad;
-        }
+        const edge = EDGE_GEOMETRY[this.settings.dock_position()] ?? EDGE_GEOMETRY.BOTTOM;
+        const box = this.get_static_box(), pad = 12;
+        const tx = visible ? 0 : edge.slide_dx * (box.width + pad);
+        const ty = visible ? 0 : edge.slide_dy * (box.height + pad);
         if (this._is_hidden === !visible && this.actor.translation_x === tx && this.actor.translation_y === ty) return;
         this._is_hidden = !visible; this.actor.reactive = visible;
         this.actor.remove_all_transitions();

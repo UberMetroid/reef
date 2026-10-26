@@ -21,7 +21,26 @@ const INTERACTION_GUIDE = Object.freeze([
     ['Push Pointer to Screen Edge', 'Reveal auto-hidden dock via Wayland pressure barrier', 'Edge Pressure'],
 ]);
 
-function make_combo_row(title, subtitle, items, active_idx, on_change) {
+export function make_switch_row(title, subtitle, active, on_toggle) {
+    const row = new Adw.ActionRow({ title, subtitle });
+    const sw = new Gtk.Switch({ active: Boolean(active), valign: Gtk.Align.CENTER });
+    sw.connect('notify::active', () => on_toggle(sw.active));
+    row.add_suffix(sw);
+    row.activatable_widget = sw;
+    return [row, sw];
+}
+
+export function make_spin_row(title, subtitle, value, min, max, step, on_change) {
+    const row = new Adw.ActionRow({ title, subtitle });
+    const spin = Gtk.SpinButton.new_with_range(min, max, step);
+    spin.set_value(value);
+    spin.set_valign(Gtk.Align.CENTER);
+    spin.connect('value-changed', () => on_change(spin.get_value_as_int()));
+    row.add_suffix(spin);
+    return [row, spin];
+}
+
+export function make_combo_row(title, subtitle, items, active_idx, on_change) {
     const row = new Adw.ActionRow({ title, subtitle });
     const combo = new Gtk.ComboBoxText({ valign: Gtk.Align.CENTER });
     for (const item of items) combo.append_text(item);
@@ -162,7 +181,7 @@ export function build_about_page() {
         subtitle: 'Zero-subprocess, zero-telemetry Wayland dock extension for GNOME Shell',
     });
     ver_row.add_suffix(new Gtk.Label({
-        label: 'v1.0.2', valign: Gtk.Align.CENTER, css_classes: ['monospace'],
+        label: 'v1.0.3', valign: Gtk.Align.CENTER, css_classes: ['monospace'],
     }));
     header_group.add(ver_row);
 

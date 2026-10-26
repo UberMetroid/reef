@@ -20,6 +20,7 @@ export class DockManager {
         this.docks = [];
         this._signals = [];
         this._layout_signals = [];
+        this._ext_mgr_sig = 0;
         this._overview_dash_hidden = false;
         this._current_style = null;
 
@@ -85,6 +86,14 @@ export class DockManager {
         this._layout_signals.push(
             Main.layoutManager.connect('monitors-changed', () => this.rebuild_docks()),
         );
+        const mgr = Main.extensionManager;
+        if (mgr && typeof mgr.connect === 'function') {
+            this._ext_mgr_sig = mgr.connect('extension-state-changed', (_mgr, ext) => {
+                if (ext && CONFLICTING_DOCK_UUIDS.includes(ext.uuid)) {
+                    this.rebuild_docks();
+                }
+            });
+        }
     }
 
     _bind_settings() {
@@ -125,6 +134,10 @@ export class DockManager {
 
     rebuild_docks() {
         this._destroy_docks();
+        if (this.has_conflicting_dock_active()) {
+            this._overview_dash_hidden = false;
+            return;
+        }
         this._hide_overview_dash();
         const monitors = Main.layoutManager.monitors || [];
         if (monitors.length === 0) return;
@@ -140,6 +153,7 @@ export class DockManager {
     }
 
     refresh_all() {
+        if (this.has_conflicting_dock_active()) return;
         this._hide_overview_dash();
         for (const dock of this.docks) {
             dock.apply_layout_and_style();
@@ -155,6 +169,10 @@ export class DockManager {
     }
 
     destroy() {
+        if (this._ext_mgr_sig > 0 && Main.extensionManager) {
+            try { Main.extensionManager.disconnect(this._ext_mgr_sig); } catch (_e) { /* ignore */ }
+            this._ext_mgr_sig = 0;
+        }
         for (const id of this._layout_signals) {
             try { Main.layoutManager.disconnect(id); } catch (_e) { /* ignore */ }
         }

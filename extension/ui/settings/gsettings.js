@@ -19,20 +19,20 @@ export const CLICK_ACTIONS = Object.freeze(['focus-or-cycle', 'focus-or-minimize
 export const MIDDLE_CLICK_ACTIONS = Object.freeze(['launch', 'minimize', 'quit']);
 export const SCROLL_ACTIONS = Object.freeze(['cycle-windows', 'switch-workspace', 'none']);
 
-const BOOL_KEYS = Object.freeze([
-    'autohide-in-fullscreen',
-    'dock-fixed',
-    'extend-height',
-    'intellihide',
-    'isolate-workspaces',
-    'multi-monitor',
-    'require-pressure-to-show',
-    'show-apps-at-top',
-    'show-border',
-    'show-favorites',
-    'show-running',
-    'show-show-apps-button',
-]);
+const BOOL_KEYS = Object.freeze({
+    'autohide-in-fullscreen': true,
+    'dock-fixed': false,
+    'extend-height': false,
+    'intellihide': true,
+    'isolate-workspaces': false,
+    'multi-monitor': false,
+    'require-pressure-to-show': true,
+    'show-apps-at-top': false,
+    'show-border': true,
+    'show-favorites': true,
+    'show-running': true,
+    'show-show-apps-button': true,
+});
 
 const UINT_BOUNDS = Object.freeze({
     'background-opacity': [0, 100, 80],
@@ -53,11 +53,12 @@ const ENUM_SPEC = Object.freeze({
 export class ExtensionSettings {
     constructor(ext_settings) {
         this.ext = ext_settings;
+        this._ext = ext_settings;
         this.int = settings_new_schema(INTERFACE_SCHEMA);
 
-        for (const key of BOOL_KEYS) {
+        for (const [key, def] of Object.entries(BOOL_KEYS)) {
             const prop = key.replace(/-/g, '_');
-            this[prop] = () => (this.ext.settings_schema?.has_key(key) ? this.ext.get_boolean(key) : false);
+            this[prop] = () => (this.ext.settings_schema?.has_key(key) ? this.ext.get_boolean(key) : def);
             this[`set_${prop}`] = (v) => {
                 if (this.ext.settings_schema?.has_key(key)) this.ext.set_boolean(key, Boolean(v));
             };
@@ -120,28 +121,27 @@ export class ExtensionSettings {
     }
 
     reset_defaults() {
-        this.set_dock_position('BOTTOM');
-        this.set_dock_fixed(false);
-        this.set_intellihide(true);
-        this.set_intellihide_mode('ALL_WINDOWS');
-        this.set_require_pressure_to_show(true);
-        this.set_pressure_threshold(100);
-        this.set_autohide_in_fullscreen(true);
-        this.set_extend_height(false);
-        this.set_multi_monitor(false);
-        this.set_dash_max_icon_size(48);
-        this.set_show_apps_at_top(false);
-        this.set_show_show_apps_button(true);
-        this.set_show_favorites(true);
-        this.set_show_running(true);
-        this.set_isolate_workspaces(false);
-        this.set_click_action('focus-or-cycle');
-        this.set_middle_click_action('launch');
-        this.set_scroll_action('cycle-windows');
-        this.set_background_opacity(80);
-        this.set_show_border(true);
-        this.set_border_width(2);
-        this.set_border_radius(16);
+        const all_keys = [
+            ...Object.keys(BOOL_KEYS),
+            ...Object.keys(UINT_BOUNDS),
+            ...Object.keys(ENUM_SPEC),
+            'border-color-rgba',
+        ];
+        if (typeof this._ext?.reset === 'function') {
+            for (const key of all_keys) {
+                if (this._ext.settings_schema?.has_key(key)) this._ext.reset(key);
+            }
+            return;
+        }
+        for (const [key, def] of Object.entries(BOOL_KEYS)) {
+            this[`set_${key.replace(/-/g, '_')}`](def);
+        }
+        for (const [key, [, , def]] of Object.entries(UINT_BOUNDS)) {
+            this[`set_${key.replace(/-/g, '_')}`](def);
+        }
+        for (const [key, [, def]] of Object.entries(ENUM_SPEC)) {
+            this[`set_${key.replace(/-/g, '_')}`](def);
+        }
         this.set_border_color_rgba('rgb(255,0,0)');
     }
 }

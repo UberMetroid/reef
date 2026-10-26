@@ -7,36 +7,10 @@ import Gtk from 'gi://Gtk';
 import { ExtensionPreferences } from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js';
 import { format_rgba, parse_rgba } from './ui/settings/color.js';
 import { DOCK_POSITIONS, ExtensionSettings, INTELLIHIDE_MODES } from './ui/settings/gsettings.js';
-import { BORDER_PRESETS, build_about_page, build_clicks_page } from './ui/settings/prefs_pages.js';
-
-function make_switch_row(title, subtitle, active, on_toggle) {
-    const row = new Adw.ActionRow({ title, subtitle });
-    const sw = new Gtk.Switch({ active: Boolean(active), valign: Gtk.Align.CENTER });
-    sw.connect('notify::active', () => on_toggle(sw.active));
-    row.add_suffix(sw);
-    row.activatable_widget = sw;
-    return [row, sw];
-}
-
-function make_spin_row(title, subtitle, value, min, max, step, on_change) {
-    const row = new Adw.ActionRow({ title, subtitle });
-    const spin = Gtk.SpinButton.new_with_range(min, max, step);
-    spin.set_value(value);
-    spin.set_valign(Gtk.Align.CENTER);
-    spin.connect('value-changed', () => on_change(spin.get_value_as_int()));
-    row.add_suffix(spin);
-    return [row, spin];
-}
-
-function make_combo_row(title, subtitle, items, active_idx, on_change) {
-    const row = new Adw.ActionRow({ title, subtitle });
-    const combo = new Gtk.ComboBoxText({ valign: Gtk.Align.CENTER });
-    for (const item of items) combo.append_text(item);
-    combo.set_active(Math.max(0, active_idx));
-    combo.connect('changed', () => on_change(combo.get_active()));
-    row.add_suffix(combo);
-    return [row, combo];
-}
+import {
+    BORDER_PRESETS, build_about_page, build_clicks_page,
+    make_combo_row, make_spin_row, make_switch_row,
+} from './ui/settings/prefs_pages.js';
 
 function build_behavior_page(ext_settings, settings, signals) {
     const page = new Adw.PreferencesPage({ title: 'Dock & Behavior', icon_name: 'preferences-system-symbolic' });
