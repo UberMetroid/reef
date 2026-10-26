@@ -8,7 +8,7 @@ import {
     is_window_maximized_or_fullscreen, MAX_TRACKED_WINDOWS,
 } from '../extension/dock/intellihide.js';
 import {
-    build_dock_background_css, build_separator_css, compute_dock_margins,
+    build_dock_background_css, build_running_dot_css, build_separator_css, compute_dock_margins,
     DOCK_EDGE_MARGIN, EDGE_GEOMETRY, is_shared_monitor_edge,
 } from '../extension/ui/dock_style.js';
 import { format_rgba, is_dark_rgba, parse_rgba, text_color_for_css } from '../extension/ui/settings/color.js';
@@ -136,13 +136,14 @@ function verify_process_boundaries_and_invariants() {
         '[reef] autohide-delay', '[reef] intellihide-coalesce', 'extension-state-changed',
         'is_shared_monitor_edge', 'PressureBarrier', 'Meta.Barrier', 'ALL_WINDOWS',
         'FOCUSED_WINDOW', 'MAXIMIZED_ONLY', '"45"', '"50"', '"settings-schema": "org.gnome.shell.extensions.reef"',
-        'name="dock-position"', 'name="intellihide-mode"', 'name="border-color-rgba"',
+        'name="dock-position"', 'name="intellihide-mode"', 'name="border-color-rgba"', 'name="dock-margin"',
         "'rgb(255,0,0)'", 'Gruvbox Amber', 'Kelp Emerald', 'Ocean Cyan', 'Coral Red',
-        'v1.0.5', 'match_preset(', 'Screen Edge &amp; Intelligent Auto-Hide',
+        'v1.0.6', 'match_preset(', 'Screen Edge &amp; Intelligent Auto-Hide',
         'Support &amp; Community', 'Adw.ActionRow({ title: gesture, subtitle: desc })',
         'this.unload_theme()', 'load_stylesheet(file)', 'sizer.clear_constraints()',
-        '.reef-dock-container #dash .dash-item-container .overview-tile',
-        'this.dash._background.style = build_dock_background_css', 'center_base_icon(',
+        '.reef-dock-container #dash .dash-item-container .overview-tile', 'reef-icon-tiles',
+        'name="show-icon-background"', 'Show App Icon Background Tiles', 'Floating Screen-Edge Margin (px)',
+        'this.dash._background.style = build_dock_background_css', 'build_running_dot_css(', 'sync_dot(', 'center_base_icon(',
         'const inner_w = (bx_w + sa_w) > 0',
     ];
     for (const req of reqs) assert(combined.includes(req), `Missing invariant: ${req}`);
@@ -167,24 +168,24 @@ async function verify_behavioral_and_gtk_suite() {
     });
     const s = new ExtensionSettings(ext_settings);
 
-    assert(s.dock_position() === 'BOTTOM' && !s.is_vertical() && !s.dock_fixed() && s.intellihide(), 'defaults');
-    assert(s.intellihide_mode() === 'ALL_WINDOWS' && s.dash_max_icon_size() === 48 && s.border_width() === 2, 'sizes');
+    assert(s.dock_position() === 'BOTTOM' && !s.is_vertical() && !s.dock_fixed() && s.intellihide() && !s.show_icon_background(), 'defaults');
+    assert(s.intellihide_mode() === 'ALL_WINDOWS' && s.dash_max_icon_size() === 48 && s.border_width() === 2 && s.dock_margin() === 6, 'sizes');
     assert(DOCK_POSITIONS.length === 1 && INTELLIHIDE_MODES.length === 3 && BORDER_PRESETS.length === 4, 'enums');
     assert(CLICK_ACTIONS.length === 3 && MIDDLE_CLICK_ACTIONS.length === 3 && SCROLL_ACTIONS.length === 3, 'actions');
     assert(typeof make_switch_row === 'function' && typeof make_spin_row === 'function' && typeof make_combo_row === 'function', 'shared builders');
 
-    s.set_dock_position('LEFT');
-    assert(s.dock_position() === 'BOTTOM' && !s.is_vertical(), 'locked bottom position');
-    s.set_dock_position('INVALID');
-    assert(s.dock_position() === 'BOTTOM' && !s.is_vertical(), 'invalid position fallback');
-    s.set_dash_max_icon_size(999);
-    assert(s.dash_max_icon_size() === 64, 'clamp max icon size');
-    s.set_dash_max_icon_size(10);
-    assert(s.dash_max_icon_size() === 24, 'clamp min icon size');
-    s.set_border_color_rgba('#2ec27e');
-    assert(s.border_color_rgba() === 'rgba(46, 194, 126, 1)', 'hex color normalization');
+    s.set_show_icon_background(true); assert(s.show_icon_background() === true, 'toggle show_icon_background');
+    s.set_dock_position('LEFT'); assert(s.dock_position() === 'BOTTOM' && !s.is_vertical(), 'locked bottom position');
+    s.set_dock_position('INVALID'); assert(s.dock_position() === 'BOTTOM' && !s.is_vertical(), 'invalid position fallback');
+    s.set_dash_max_icon_size(999); assert(s.dash_max_icon_size() === 64, 'clamp max icon size');
+    s.set_dash_max_icon_size(10); assert(s.dash_max_icon_size() === 24, 'clamp min icon size');
+    s.set_dock_margin(99); assert(s.dock_margin() === 24, 'clamp max dock margin');
+    s.set_dock_margin(-5); assert(s.dock_margin() === 0, 'clamp min dock margin');
+    s.set_border_color_rgba('#2ec27e'); assert(s.border_color_rgba() === 'rgba(46, 194, 126, 1)', 'hex color normalization');
+    const d1 = build_running_dot_css(s, 1), d2 = build_running_dot_css(s, 3);
+    assert(!build_running_dot_css(s, 0) && !build_running_dot_css(s, NaN) && d1.includes('rgba(46, 194, 126, 1)') && d1.includes('width: 6px;') && d2.includes('width: 14px;'), 'dot');
     s.reset_defaults();
-    assert(s.dash_max_icon_size() === 48 && s.border_color_rgba() === 'rgba(255, 0, 0, 1)', 'reset defaults');
+    assert(s.dash_max_icon_size() === 48 && s.dock_margin() === 6 && !s.show_icon_background() && s.border_color_rgba() === 'rgba(255, 0, 0, 1)', 'reset defaults');
     const mock_store = {};
     const mock_s = new ExtensionSettings({
         settings_schema: { has_key: () => true },
@@ -193,14 +194,14 @@ async function verify_behavioral_and_gtk_suite() {
         get_string: (k) => mock_store[k] ?? '', set_string: (k, v) => { mock_store[k] = v; },
     });
     mock_s.reset_defaults();
-    assert(mock_s.intellihide() && mock_s.dash_max_icon_size() === 48 && mock_s.dock_position() === 'BOTTOM', 'mock reset fallback');
+    assert(mock_s.intellihide() && mock_s.dash_max_icon_size() === 48 && mock_s.dock_margin() === 6 && mock_s.dock_position() === 'BOTTOM', 'mock reset fallback');
 
     const c_short = parse_rgba('#f00');
     assert(c_short.red === 255 && c_short.green === 0 && c_short.blue === 0 && is_dark_rgba({ red: 10, green: 10, blue: 10 }), 'color parse');
     assert(text_color_for_css('rgb(0,0,0)') === '#ffffff' && format_rgba(c_short) === 'rgba(255, 0, 0, 1)', 'contrast');
 
-    const m_pill = compute_dock_margins('BOTTOM', false), m_panel = compute_dock_margins('BOTTOM', true);
-    assert(m_pill.bottom === DOCK_EDGE_MARGIN && m_pill.top === 0 && m_panel.bottom === 0, 'dock margins');
+    const m_pill = compute_dock_margins('BOTTOM', false), m_panel = compute_dock_margins('BOTTOM', true), m_cust = compute_dock_margins('BOTTOM', false, 14);
+    assert(m_pill.bottom === DOCK_EDGE_MARGIN && m_pill.top === 0 && m_panel.bottom === 0 && m_cust.bottom === 14 && compute_dock_margins('BOTTOM', false, NaN).bottom === DOCK_EDGE_MARGIN, 'margins');
     const mon_l = { x: 0, y: 0, width: 1920, height: 1080 }, mon_r = { x: 1920, y: 0, width: 1920, height: 1080 };
     const mon_b = { x: 0, y: 1080, width: 1920, height: 1080 }, mon_diag = { x: 1920, y: 1080, width: 1920, height: 1080 };
     assert(is_shared_monitor_edge(mon_l, [mon_l, mon_b], 'BOTTOM') && !is_shared_monitor_edge(mon_l, [mon_l, mon_r], 'BOTTOM'), 'shared bottom edge');
@@ -253,4 +254,3 @@ verify_page_rules_and_lint(js_files, dirs);
 verify_process_boundaries_and_invariants();
 await verify_behavioral_and_gtk_suite();
 print(`OK: verified ${js_files.length} JS pages across ${dirs.length} directories and all headless behavioral suites.`);
-

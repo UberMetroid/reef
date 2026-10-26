@@ -7,6 +7,7 @@ import { gettext as _ } from 'resource:///org/gnome/shell/extensions/extension.j
 import * as BoxPointer from 'resource:///org/gnome/shell/ui/boxpointer.js';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import * as PopupMenu from 'resource:///org/gnome/shell/ui/popupMenu.js';
+import { build_running_dot_css } from '../ui/dock_style.js';
 import { MAX_TRACKED_WINDOWS } from './intellihide.js';
 
 const POPUP_SIDE = St.Side.BOTTOM;
@@ -128,12 +129,21 @@ export class AppActionsController {
             current.add(app_icon);
             app_icon._popupMenuSide = side;
             if (app_icon._menu) app_icon._menu._arrowSide = side;
+            const sync_dot = () => {
+                if (!app_icon._dot) return;
+                const iso = this.settings.isolate_workspaces(), wins = get_app_windows(app_icon.app, iso);
+                app_icon._dot.style = build_running_dot_css(this.settings, wins.length);
+                app_icon._dot.visible = iso ? wins.length > 0 : (app_icon.app.state !== 0 || wins.length > 0);
+            };
+            sync_dot();
             if (this._icon_hooks.has(app_icon)) continue;
             const orig_activate = app_icon.activate.bind(app_icon);
+            const orig_update_dot = app_icon._updateRunningStyle?.bind(app_icon) ?? null;
+            if (orig_update_dot) app_icon._updateRunningStyle = () => { orig_update_dot(); sync_dot(); };
             app_icon.activate = (button) => this._handle_activate(app_icon, button, orig_activate);
             const scroll_sig = app_icon.connect('scroll-event', (_actor, ev) => this._handle_scroll(app_icon, ev));
             const destroy_sig = app_icon.connect('destroy', () => this._icon_hooks.delete(app_icon));
-            this._icon_hooks.set(app_icon, { orig_activate, scroll_sig, destroy_sig });
+            this._icon_hooks.set(app_icon, { orig_activate, orig_update_dot, scroll_sig, destroy_sig });
         }
         for (const [app_icon, hook] of Array.from(this._icon_hooks.entries())) {
             if (!current.has(app_icon)) this._unhook_icon(app_icon, hook);
@@ -211,6 +221,7 @@ export class AppActionsController {
     _unhook_icon(app_icon, hook) {
         try {
             app_icon.activate = hook.orig_activate;
+            if (hook.orig_update_dot) app_icon._updateRunningStyle = hook.orig_update_dot;
             app_icon.disconnect(hook.scroll_sig);
             app_icon.disconnect(hook.destroy_sig);
         } catch (_e) { /* ignore */ }

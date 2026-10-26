@@ -127,7 +127,11 @@ function build_appearance_page(ext_settings, settings, signals) {
         'Isolate Workspaces', 'Only show running applications that have windows on the active workspace',
         settings.isolate_workspaces(), (v) => settings.set_isolate_workspaces(v),
     );
-    for (const r of [size_row, apps_row, top_row, fav_row, run_row, iso_row]) icon_group.add(r);
+    const [tile_row, tile_sw] = make_switch_row(
+        'Show App Icon Background Tiles', 'Draw a rounded tile behind each application icon at rest',
+        settings.show_icon_background(), (v) => settings.set_show_icon_background(v),
+    );
+    for (const r of [size_row, apps_row, top_row, fav_row, run_row, iso_row, tile_row]) icon_group.add(r);
     page.add(icon_group);
 
     const style_group = new Adw.PreferencesGroup({
@@ -173,7 +177,11 @@ function build_appearance_page(ext_settings, settings, signals) {
         'Border Corner Radius (px)', 'Corner rounding of the floating dock pill (0–32 px)',
         settings.border_radius(), 0, 32, 2, (v) => settings.set_border_radius(v),
     );
-    for (const r of [op_row, bdr_row, color_row, preset_row, bw_row, br_row]) style_group.add(r);
+    const [mg_row, mg_spin] = make_spin_row(
+        'Floating Screen-Edge Margin (px)', 'Gap between the floating dock pill and the bottom screen edge (0–24 px, default 6 px)',
+        settings.dock_margin(), 0, 24, 1, (v) => settings.set_dock_margin(v),
+    );
+    for (const r of [op_row, bdr_row, color_row, preset_row, bw_row, br_row, mg_row]) style_group.add(r);
     page.add(style_group);
 
     const sync_style = () => {
@@ -183,10 +191,12 @@ function build_appearance_page(ext_settings, settings, signals) {
         if (fav_sw.active !== settings.show_favorites()) fav_sw.active = settings.show_favorites();
         if (run_sw.active !== settings.show_running()) run_sw.active = settings.show_running();
         if (iso_sw.active !== settings.isolate_workspaces()) iso_sw.active = settings.isolate_workspaces();
+        if (tile_sw.active !== settings.show_icon_background()) tile_sw.active = settings.show_icon_background();
         if (op_spin.get_value_as_int() !== settings.background_opacity()) op_spin.set_value(settings.background_opacity());
         if (bdr_sw.active !== settings.show_border()) bdr_sw.active = settings.show_border();
         if (bw_spin.get_value_as_int() !== settings.border_width()) bw_spin.set_value(settings.border_width());
         if (br_spin.get_value_as_int() !== settings.border_radius()) br_spin.set_value(settings.border_radius());
+        if (mg_spin.get_value_as_int() !== settings.dock_margin()) mg_spin.set_value(settings.dock_margin());
         const next_color = settings.border_color_rgba();
         const next_rgba = new Gdk.RGBA();
         if (next_rgba.parse(next_color) && !color_btn.get_rgba().equal(next_rgba)) color_btn.set_rgba(next_rgba);
@@ -194,8 +204,9 @@ function build_appearance_page(ext_settings, settings, signals) {
         if (preset_combo.get_active() !== next_idx) preset_combo.set_active(next_idx);
     };
     const s_keys = [
-        'dash-max-icon-size', 'show-show-apps-button', 'show-apps-at-top', 'show-favorites',
-        'show-running', 'isolate-workspaces', 'background-opacity', 'show-border', 'border-width', 'border-radius', 'border-color-rgba',
+        'dash-max-icon-size', 'show-show-apps-button', 'show-apps-at-top', 'show-favorites', 'show-running',
+        'isolate-workspaces', 'show-icon-background', 'background-opacity', 'show-border', 'border-width',
+        'border-radius', 'border-color-rgba', 'dock-margin',
     ];
     for (const k of s_keys) {
         if (ext_settings.settings_schema?.has_key(k)) signals.push([ext_settings, ext_settings.connect(`changed::${k}`, sync_style)]);

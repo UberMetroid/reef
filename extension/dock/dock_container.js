@@ -34,7 +34,7 @@ export class DockContainer {
         this._bind_overview(); this._sync_chrome(); this.apply_layout_and_style();
         this.actions = new AppActionsController(this, this.settings, this.extension);
         this.pressure = new EdgePressureController(this, this.settings);
-        this.intellihide = new IntellihideTracker(this, this.settings, () => this.sync_visibility());
+        this.intellihide = new IntellihideTracker(this, this.settings, () => { this.actions?.sync_icons(); this.sync_visibility(); });
     }
     get monitor() { return Main.layoutManager.monitors[this.monitor_index] ?? Main.layoutManager.primaryMonitor ?? null; }
     _bind_show_apps() {
@@ -134,9 +134,9 @@ export class DockContainer {
     }
     apply_layout_and_style() {
         this._sync_chrome();
-        const extend = this.settings.extend_height(), orient = Clutter.Orientation.HORIZONTAL;
+        const extend = this.settings.extend_height(), tiles = this.settings.show_icon_background(), orient = Clutter.Orientation.HORIZONTAL;
         const align = Clutter.ActorAlign.CENTER, fill = Clutter.ActorAlign.FILL;
-        this.actor.style_class = `reef-dock-container ${extend ? 'reef-dock-panel' : 'reef-dock-pill'} reef-dock-horizontal`;
+        this.actor.style_class = `reef-dock-container ${extend ? 'reef-dock-panel' : 'reef-dock-pill'} reef-dock-horizontal${tiles ? ' reef-icon-tiles' : ''}`;
         this.actor.orientation = orient;
         if (!extend) {
             for (const a of [this.actor, this.dash, this.dash._dashContainer, this.dash._background]) {
@@ -177,7 +177,7 @@ export class DockContainer {
         const mon = this.monitor;
         if (!mon) return { x: 0, y: 0, width: 0, height: 0 };
         const extend = this.settings.extend_height(), edge = EDGE_GEOMETRY.BOTTOM;
-        const margins = compute_dock_margins('BOTTOM', extend || this.settings.dock_fixed());
+        const margins = compute_dock_margins('BOTTOM', extend, this.settings.dock_margin());
         const dc = this.dash?._dashContainer, bg = this.dash?._background, bx = this.dash?._box, sa = this.dash?._showAppsIcon;
         const [, bx_w] = bx?.get_preferred_width?.(-1) ?? [0, 0];
         const [, sa_w] = (sa?.visible ? sa?.get_preferred_width?.(-1) : null) ?? [0, 0];

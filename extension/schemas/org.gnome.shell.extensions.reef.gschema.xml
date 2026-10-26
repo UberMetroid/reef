@@ -115,6 +115,12 @@
       <description>Opacity of the dock background from 0 (transparent) to 100 (solid).</description>
     </key>
 
+    <key name="show-icon-background" type="b">
+      <default>false</default>
+      <summary>Show background tiles behind application icons</summary>
+      <description>When true, draws a subtle rounded tile behind each application icon at rest. When false, keeps app icon backgrounds transparent until hovered while preserving the Show Apps launcher tile.</description>
+    </key>
+
     <key name="show-border" type="b">
       <default>true</default>
       <summary>Show accent border around the dock pill</summary>
@@ -137,6 +143,12 @@
       <default>'rgb(255,0,0)'</default>
       <summary>Dock accent border color</summary>
       <description>CSS RGB/RGBA string for the dock border ring (default Coral Red matching Kelp).</description>
+    </key>
+
+    <key name="dock-margin" type="u">
+      <default>6</default>
+      <summary>Floating dock screen-edge margin in pixels</summary>
+      <description>Gap between the floating dock pill and the bottom screen edge in CSS pixels (0–24 px, default 6 px).</description>
     </key>
   </schema>
 </schemalist>

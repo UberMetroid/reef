@@ -14,8 +14,10 @@ export const EDGE_GEOMETRY = Object.freeze({
     }),
 });
 
-export function compute_dock_margins(_position, extend_height) {
-    return { top: 0, right: 0, bottom: extend_height ? 0 : DOCK_EDGE_MARGIN, left: 0 };
+export function compute_dock_margins(_position, extend_height, margin_px = DOCK_EDGE_MARGIN) {
+    const num = Number(margin_px ?? DOCK_EDGE_MARGIN);
+    const gap = Math.max(0, Math.min(24, Math.round(Number.isFinite(num) ? num : DOCK_EDGE_MARGIN)));
+    return { top: 0, right: 0, bottom: extend_height ? 0 : gap, left: 0 };
 }
 
 export function is_shared_monitor_edge(mon, monitors, _pos = 'BOTTOM') {
@@ -54,6 +56,15 @@ export function build_dock_background_css(settings) {
 
     rules.push('box-shadow: 0 4px 14px rgba(0, 0, 0, 0.32);');
     return rules.join(' ');
+}
+
+export function build_running_dot_css(settings, win_count) {
+    const raw = Number(win_count);
+    const count = Number.isFinite(raw) ? Math.floor(raw) : 0;
+    if (count <= 0) return '';
+    const color = format_rgba(parse_rgba(settings.border_color_rgba()));
+    const width = count >= 2 ? 14 : 6;
+    return `background-color: ${color}; width: ${width}px; height: 6px; border-radius: 99px; margin-bottom: 2px;`;
 }
 
 export function build_separator_css(is_vertical, icon_size, is_dark) {

@@ -112,8 +112,8 @@ export class DockManager {
             'require-pressure-to-show', 'pressure-threshold', 'autohide-in-fullscreen',
             'extend-height', 'dash-max-icon-size', 'show-apps-at-top',
             'show-show-apps-button', 'show-favorites', 'show-running',
-            'isolate-workspaces', 'background-opacity', 'show-border',
-            'border-width', 'border-radius', 'border-color-rgba',
+            'isolate-workspaces', 'background-opacity', 'show-icon-background',
+            'show-border', 'border-width', 'border-radius', 'border-color-rgba', 'dock-margin',
         ];
         for (const k of update_keys) {
             if (this.ext_settings.settings_schema?.has_key(k)) {

@@ -30,6 +30,7 @@ const BOOL_KEYS = Object.freeze({
     'show-apps-at-top': false,
     'show-border': true,
     'show-favorites': true,
+    'show-icon-background': false,
     'show-running': true,
     'show-show-apps-button': true,
 });
@@ -39,6 +40,7 @@ const UINT_BOUNDS = Object.freeze({
     'border-radius': [0, 32, 16],
     'border-width': [0, 8, 2],
     'dash-max-icon-size': [24, 64, 48],
+    'dock-margin': [0, 24, 6],
     'pressure-threshold': [20, 500, 100],
 });
 
