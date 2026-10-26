@@ -138,13 +138,15 @@ function verify_process_boundaries_and_invariants() {
         'FOCUSED_WINDOW', 'MAXIMIZED_ONLY', '"45"', '"50"', '"settings-schema": "org.gnome.shell.extensions.reef"',
         'name="dock-position"', 'name="intellihide-mode"', 'name="border-color-rgba"',
         "'rgb(255,0,0)'", 'Gruvbox Amber', 'Kelp Emerald', 'Ocean Cyan', 'Coral Red',
-        'v1.0.4', 'match_preset(', 'Screen Edge &amp; Intelligent Auto-Hide',
+        'v1.0.5', 'match_preset(', 'Screen Edge &amp; Intelligent Auto-Hide',
         'Support &amp; Community', 'Adw.ActionRow({ title: gesture, subtitle: desc })',
         'this.unload_theme()', 'load_stylesheet(file)', 'sizer.clear_constraints()',
         '.reef-dock-container #dash .dash-item-container .overview-tile',
         'this.dash._background.style = build_dock_background_css', 'center_base_icon(',
+        'const inner_w = (bx_w + sa_w) > 0',
     ];
     for (const req of reqs) assert(combined.includes(req), `Missing invariant: ${req}`);
+    assert(!combined.includes('fixed_width_set') && !combined.includes('fixed_height_set'), 'No nonexistent Clutter fixed_width_set');
     assert(!combined.includes('Rust installer') && !combined.includes('cargo install'), 'No Rust CLI reference');
     const prefs_pages = read_text(GLib.build_filenamev([EXT_ROOT, 'ui/settings/prefs_pages.js']));
     assert(!/new Gtk\.Label\(\{[^}]*&amp;/s.test(prefs_pages), 'Gtk.Label must not contain raw &amp; without use_markup');
@@ -167,12 +169,12 @@ async function verify_behavioral_and_gtk_suite() {
 
     assert(s.dock_position() === 'BOTTOM' && !s.is_vertical() && !s.dock_fixed() && s.intellihide(), 'defaults');
     assert(s.intellihide_mode() === 'ALL_WINDOWS' && s.dash_max_icon_size() === 48 && s.border_width() === 2, 'sizes');
-    assert(DOCK_POSITIONS.length === 4 && INTELLIHIDE_MODES.length === 3 && BORDER_PRESETS.length === 4, 'enums');
+    assert(DOCK_POSITIONS.length === 1 && INTELLIHIDE_MODES.length === 3 && BORDER_PRESETS.length === 4, 'enums');
     assert(CLICK_ACTIONS.length === 3 && MIDDLE_CLICK_ACTIONS.length === 3 && SCROLL_ACTIONS.length === 3, 'actions');
     assert(typeof make_switch_row === 'function' && typeof make_spin_row === 'function' && typeof make_combo_row === 'function', 'shared builders');
 
     s.set_dock_position('LEFT');
-    assert(s.dock_position() === 'LEFT' && s.is_vertical(), 'vertical left');
+    assert(s.dock_position() === 'BOTTOM' && !s.is_vertical(), 'locked bottom position');
     s.set_dock_position('INVALID');
     assert(s.dock_position() === 'BOTTOM' && !s.is_vertical(), 'invalid position fallback');
     s.set_dash_max_icon_size(999);
@@ -201,11 +203,10 @@ async function verify_behavioral_and_gtk_suite() {
     assert(m_pill.bottom === DOCK_EDGE_MARGIN && m_pill.top === 0 && m_panel.bottom === 0, 'dock margins');
     const mon_l = { x: 0, y: 0, width: 1920, height: 1080 }, mon_r = { x: 1920, y: 0, width: 1920, height: 1080 };
     const mon_b = { x: 0, y: 1080, width: 1920, height: 1080 }, mon_diag = { x: 1920, y: 1080, width: 1920, height: 1080 };
-    assert(is_shared_monitor_edge(mon_l, [mon_l, mon_r], 'RIGHT') && !is_shared_monitor_edge(mon_l, [mon_l, mon_diag], 'RIGHT'), 'shared H / diag');
-    assert(is_shared_monitor_edge(mon_r, [mon_l, mon_r], 'LEFT') && is_shared_monitor_edge(mon_l, [mon_l, mon_b], 'BOTTOM'), 'shared V/H2 edge');
-    assert(is_shared_monitor_edge(mon_b, [mon_l, mon_b], 'TOP') && !is_shared_monitor_edge(mon_l, [mon_l, mon_diag], 'BOTTOM'), 'shared TOP / diag');
-    assert(!is_shared_monitor_edge(null, [mon_l], 'TOP') && EDGE_GEOMETRY.TOP.slide_dy === -1 && EDGE_GEOMETRY.RIGHT.slide_dx === 1, 'edge geometry');
-    assert(EDGE_GEOMETRY.LEFT.box(mon_l, 64, 400, 0, 340, { left: 6 }).x === 6, 'edge geometry box');
+    assert(is_shared_monitor_edge(mon_l, [mon_l, mon_b], 'BOTTOM') && !is_shared_monitor_edge(mon_l, [mon_l, mon_r], 'BOTTOM'), 'shared bottom edge');
+    assert(!is_shared_monitor_edge(mon_l, [mon_l, mon_diag], 'BOTTOM') && !is_shared_monitor_edge(null, [mon_l], 'BOTTOM'), 'non-shared bottom edge');
+    assert(EDGE_GEOMETRY.BOTTOM.slide_dy === 1 && EDGE_GEOMETRY.BOTTOM.slide_dx === 0, 'edge geometry');
+    assert(EDGE_GEOMETRY.BOTTOM.box(mon_l, 400, 68, 760, 0, { bottom: 6 }).y === 1006, 'edge geometry box');
     const css = build_dock_background_css(s);
     assert(css.includes('border: 2px solid rgba(255, 0, 0, 1);') && css.includes('border-radius: 16px;'), 'pill css');
     const sep_h = build_separator_css(false, 48, true), sep_v = build_separator_css(true, 48, false);

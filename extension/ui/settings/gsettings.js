@@ -13,7 +13,7 @@ function settings_new_schema(schema) {
     return source.lookup(schema, true) ? new Gio.Settings({ schema_id: schema }) : null;
 }
 
-export const DOCK_POSITIONS = Object.freeze(['BOTTOM', 'LEFT', 'RIGHT', 'TOP']);
+export const DOCK_POSITIONS = Object.freeze(['BOTTOM']);
 export const INTELLIHIDE_MODES = Object.freeze(['ALL_WINDOWS', 'FOCUSED_WINDOW', 'MAXIMIZED_ONLY']);
 export const CLICK_ACTIONS = Object.freeze(['focus-or-cycle', 'focus-or-minimize', 'launch']);
 export const MIDDLE_CLICK_ACTIONS = Object.freeze(['launch', 'minimize', 'quit']);
@@ -107,8 +107,7 @@ export class ExtensionSettings {
     }
 
     is_vertical() {
-        const pos = this.dock_position();
-        return pos === 'LEFT' || pos === 'RIGHT';
+        return false;
     }
 
     is_dark() {

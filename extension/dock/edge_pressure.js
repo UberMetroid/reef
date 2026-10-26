@@ -15,26 +15,11 @@ const PRESSURE_TIMEOUT_MS = 1000;
 const AUTOHIDE_DELAY_MS = 220;
 const EDGE_STRIP_THICKNESS = 2;
 
-const BARRIER_DIRS = Object.freeze({
-    TOP: Meta.BarrierDirection.POSITIVE_Y,
-    BOTTOM: Meta.BarrierDirection.NEGATIVE_Y,
-    LEFT: Meta.BarrierDirection.POSITIVE_X,
-    RIGHT: Meta.BarrierDirection.NEGATIVE_X,
-});
-
-const BARRIER_COORDS = Object.freeze({
-    TOP: (x1, y1, x2, _y2, ins) => ({ x1: x1 + ins, y1, x2: x2 - ins, y2: y1 }),
-    BOTTOM: (x1, _y1, x2, y2, ins) => ({ x1: x1 + ins, y1: y2, x2: x2 - ins, y2 }),
-    LEFT: (x1, y1, _x2, y2, ins) => ({ x1, y1: y1 + ins, x2: x1, y2: y2 - ins }),
-    RIGHT: (_x1, y1, x2, y2, ins) => ({ x1: x2, y1: y1 + ins, x2, y2: y2 - ins }),
-});
-
-export function compute_barrier_coords(monitor, position) {
-    const x1 = monitor.x, y1 = monitor.y, x2 = monitor.x + monitor.width, y2 = monitor.y + monitor.height;
-    const fn = BARRIER_COORDS[position] ?? BARRIER_COORDS.BOTTOM;
+export function compute_barrier_coords(monitor) {
+    const x1 = monitor.x, x2 = monitor.x + monitor.width, y2 = monitor.y + monitor.height;
     return {
-        ...fn(x1, y1, x2, y2, 16),
-        direction: BARRIER_DIRS[position] ?? BARRIER_DIRS.BOTTOM,
+        x1: x1 + 16, y1: y2, x2: x2 - 16, y2,
+        direction: Meta.BarrierDirection.NEGATIVE_Y,
     };
 }
 

@@ -108,23 +108,19 @@ export class DockContainer {
         center_base_icon(this.dash._showAppsIcon?.icon);
         if (this.dash._separator) {
             this.dash._separator.x_align = align; this.dash._separator.y_align = align;
-            this.dash._separator.style = build_separator_css(
-                this.settings.is_vertical(), this.dash.iconSize, this.settings.is_dark(),
-            );
+            this.dash._separator.style = build_separator_css(false, this.dash.iconSize, this.settings.is_dark());
         }
-        this.actions?.sync_icons(); this._sync_sizer_constraints(); this._position_actor();
+        this.actions?.sync_icons(); this._sync_sizer_constraints(); this._position_actor(); this._queue_position();
     }
     _sync_sizer_constraints() {
         const sizer = this.dash._background?.get_first_child?.(), dc = this.dash._dashContainer;
         const first = this.dash._box?.get_first_child?.()?.child?._delegate?.icon, sa = this.dash._showAppsIcon?.icon;
         const icon_src = (this.settings.show_show_apps_button() ? sa : first) ?? sa;
         if (!sizer || !icon_src || !dc) return;
-        const is_vert = this.settings.is_vertical(), extend = this.settings.extend_height();
-        const c_i = is_vert ? Clutter.BindCoordinate.WIDTH : Clutter.BindCoordinate.HEIGHT;
-        const c_d = is_vert ? Clutter.BindCoordinate.HEIGHT : Clutter.BindCoordinate.WIDTH;
+        const extend = this.settings.extend_height();
         sizer.clear_constraints();
-        sizer.add_constraint(new Clutter.BindConstraint({ source: icon_src, coordinate: c_i }));
-        sizer.add_constraint(new Clutter.BindConstraint({ source: extend ? this.actor : dc, coordinate: c_d }));
+        sizer.add_constraint(new Clutter.BindConstraint({ source: icon_src, coordinate: Clutter.BindCoordinate.HEIGHT }));
+        sizer.add_constraint(new Clutter.BindConstraint({ source: extend ? this.actor : dc, coordinate: Clutter.BindCoordinate.WIDTH }));
     }
     _sync_chrome() {
         const want_struts = this.settings.dock_fixed();
@@ -138,19 +134,20 @@ export class DockContainer {
     }
     apply_layout_and_style() {
         this._sync_chrome();
-        const is_vert = this.settings.is_vertical(), extend = this.settings.extend_height();
-        const orient = is_vert ? Clutter.Orientation.VERTICAL : Clutter.Orientation.HORIZONTAL;
+        const extend = this.settings.extend_height(), orient = Clutter.Orientation.HORIZONTAL;
         const align = Clutter.ActorAlign.CENTER, fill = Clutter.ActorAlign.FILL;
-        this.actor.style_class = [
-            'reef-dock-container', extend ? 'reef-dock-panel' : 'reef-dock-pill',
-            is_vert ? 'reef-dock-vertical' : 'reef-dock-horizontal',
-        ].join(' ');
+        this.actor.style_class = `reef-dock-container ${extend ? 'reef-dock-panel' : 'reef-dock-pill'} reef-dock-horizontal`;
         this.actor.orientation = orient;
-        this.dash.x_expand = extend && !is_vert; this.dash.y_expand = extend && is_vert;
-        this.dash.x_align = extend && !is_vert ? fill : align; this.dash.y_align = extend && is_vert ? fill : align;
+        if (!extend) {
+            for (const a of [this.actor, this.dash, this.dash._dashContainer, this.dash._background]) {
+                a?.set_width(-1); a?.set_height(-1); a?.queue_relayout?.();
+            }
+        }
+        this.dash.x_expand = extend; this.dash.y_expand = false;
+        this.dash.x_align = extend ? fill : align; this.dash.y_align = align;
         if (this.dash._dashContainer) {
             this.dash._dashContainer.orientation = orient;
-            this.dash._dashContainer.x_expand = extend && !is_vert; this.dash._dashContainer.y_expand = extend && is_vert;
+            this.dash._dashContainer.x_expand = extend; this.dash._dashContainer.y_expand = false;
             this.dash._dashContainer.x_align = align; this.dash._dashContainer.y_align = align;
         }
         if (this.dash._box) {
@@ -163,43 +160,46 @@ export class DockContainer {
             this.dash._dashContainer.set_child_at_index(this.dash._showAppsIcon, this.settings.show_apps_at_top() ? 0 : 1);
         }
         if (this.dash._background) {
-            this.dash._background.x_expand = extend && !is_vert; this.dash._background.y_expand = extend && is_vert;
-            this.dash._background.x_align = extend && !is_vert ? fill : align;
-            this.dash._background.y_align = extend && is_vert ? fill : align;
+            this.dash._background.x_expand = extend; this.dash._background.y_expand = false;
+            this.dash._background.x_align = extend ? fill : align; this.dash._background.y_align = align;
             this.dash._background.style = build_dock_background_css(this.settings);
         }
         this._sync_sizer_constraints();
         const mon = this.monitor, scale = St.ThemeContext.get_for_stage(global.stage).scale_factor || 1;
         const cross_px = Math.round((this.settings.dash_max_icon_size() + 28) * scale);
-        const span_px = mon ? Math.round((is_vert ? mon.height : mon.width) * (extend ? 1.0 : 0.92)) : 640;
+        const span_px = mon ? Math.round(mon.width * (extend ? 1.0 : 0.92)) : 640;
         this.dash.iconSize = 0;
         if (mon) this.dash.setMaxSize(span_px, cross_px);
-        this.dash._queueRedisplay(); this._position_actor();
+        this.dash._queueRedisplay(); this._position_actor(); this._queue_position();
         this.pressure?.rebuild(); this.intellihide?.update();
     }
     get_static_box() {
         const mon = this.monitor;
         if (!mon) return { x: 0, y: 0, width: 0, height: 0 };
-        const pos = this.settings.dock_position(), extend = this.settings.extend_height();
-        const edge = EDGE_GEOMETRY[pos] ?? EDGE_GEOMETRY.BOTTOM;
-        const margins = compute_dock_margins(pos, extend || this.settings.dock_fixed());
-        const dc = this.dash?._dashContainer, bg = this.dash?._background;
+        const extend = this.settings.extend_height(), edge = EDGE_GEOMETRY.BOTTOM;
+        const margins = compute_dock_margins('BOTTOM', extend || this.settings.dock_fixed());
+        const dc = this.dash?._dashContainer, bg = this.dash?._background, bx = this.dash?._box, sa = this.dash?._showAppsIcon;
+        const [, bx_w] = bx?.get_preferred_width?.(-1) ?? [0, 0];
+        const [, sa_w] = (sa?.visible ? sa?.get_preferred_width?.(-1) : null) ?? [0, 0];
         const [, dc_w] = dc?.get_preferred_width?.(-1) ?? [0, 0], [, dc_h] = dc?.get_preferred_height?.(-1) ?? [0, 0];
         const [, bg_w] = bg?.get_preferred_width?.(-1) ?? [0, 0], [, bg_h] = bg?.get_preferred_height?.(-1) ?? [0, 0];
-        const raw_w = Math.max(dc?.width || 0, bg?.width || 0, this.dash?.width || 0, this.actor?.width || 0, dc_w || 0, bg_w || 0);
-        const raw_h = Math.max(dc?.height || 0, bg?.height || 0, this.dash?.height || 0, this.actor?.height || 0, dc_h || 0, bg_h || 0);
+        const inner_w = (bx_w + sa_w) > 0 ? (bx_w + sa_w) : (dc_w > 0 && dc_w < mon.width ? dc_w : 0);
+        const pad_w = bg_w > inner_w && bg_w < mon.width ? bg_w - inner_w : 20;
+        const alloc_w = (dc?.width > 0 && dc.width < mon.width) ? dc.width + 20 : 0;
+        const raw_w = (inner_w > 0 ? inner_w + pad_w : 0) || alloc_w;
+        const raw_h = Math.max(dc_h || 0, bg_h || 0, dc?.height || 0, bg?.height || 0);
         const nat_w = Math.max(64, raw_w || 320), nat_h = Math.max(48, raw_h || 68);
-        const bw = extend && !edge.is_vert ? mon.width : nat_w, bh = extend && edge.is_vert ? mon.height : nat_h;
+        const bw = extend ? mon.width : nat_w, bh = nat_h;
         const cx = extend ? mon.x : mon.x + Math.round((mon.width - bw) / 2);
-        const cy = extend ? mon.y : mon.y + Math.round((mon.height - bh) / 2);
-        return edge.box(mon, bw, bh, cx, cy, margins);
+        return edge.box(mon, bw, bh, cx, mon.y, margins);
     }
     _position_actor() {
         if (!this.actor) return;
-        const box = this.get_static_box(), extend = this.settings.extend_height(), is_vert = this.settings.is_vertical();
-        const want_w = extend && !is_vert ? box.width : -1, want_h = extend && is_vert ? box.height : -1;
-        if (want_w !== -1 ? this.actor.width !== want_w : this.actor.fixed_width_set) this.actor.set_width(want_w);
-        if (want_h !== -1 ? this.actor.height !== want_h : this.actor.fixed_height_set) this.actor.set_height(want_h);
+        const extend = this.settings.extend_height();
+        if (!extend) { this.actor.set_width(-1); this.dash?.set_width(-1); this.dash?._dashContainer?.set_width(-1); }
+        this.actor.set_height(-1);
+        const box = this.get_static_box();
+        if (extend && this.actor.width !== box.width) this.actor.set_width(box.width);
         if (this.actor.x !== box.x || this.actor.y !== box.y) this.actor.set_position(box.x, box.y);
     }
     is_pointer_inside() {
@@ -209,7 +209,7 @@ export class DockContainer {
             for (const item of this.dash?._box?.get_children?.() ?? []) { if (item?.hover || item?.child?.hover) return true; }
         }
         const [px, py] = global.get_pointer(), box = this.get_static_box(), mon = this.monitor;
-        const edge = EDGE_GEOMETRY[this.settings.dock_position()] ?? EDGE_GEOMETRY.BOTTOM;
+        const edge = EDGE_GEOMETRY.BOTTOM;
         const pad = 8, fallback = { x: box.x - pad, y: box.y - pad, width: box.width + pad * 2, height: box.height + pad * 2 };
         const { x1, x2, y1, y2 } = edge.hit(mon ?? fallback, box, pad);
         return px >= x1 && px <= x2 && py >= y1 && py <= y2;
@@ -228,8 +228,7 @@ export class DockContainer {
     }
     _slide(visible) {
         this._position_actor();
-        const edge = EDGE_GEOMETRY[this.settings.dock_position()] ?? EDGE_GEOMETRY.BOTTOM;
-        const box = this.get_static_box(), pad = 12;
+        const edge = EDGE_GEOMETRY.BOTTOM, box = this.get_static_box(), pad = 12;
         const tx = visible ? 0 : edge.slide_dx * (box.width + pad), ty = visible ? 0 : edge.slide_dy * (box.height + pad);
         if (this._is_hidden === !visible && this.actor.translation_x === tx && this.actor.translation_y === ty) return;
         this._is_hidden = !visible; this.actor.reactive = visible;
@@ -253,4 +252,3 @@ export class DockContainer {
         this._chrome_added = false; this.actor?.destroy(); this.actor = null; this.dash = null;
     }
 }
-

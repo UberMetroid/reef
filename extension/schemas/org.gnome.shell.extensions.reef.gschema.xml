@@ -4,7 +4,7 @@
     <key name="dock-position" type="s">
       <default>'BOTTOM'</default>
       <summary>Screen edge position of the Reef dock</summary>
-      <description>Screen edge where the dock is anchored: 'BOTTOM', 'LEFT', 'RIGHT', or 'TOP'.</description>
+      <description>Screen edge where the dock is anchored ('BOTTOM').</description>
     </key>
 
     <key name="dock-fixed" type="b">
@@ -64,7 +64,7 @@
     <key name="show-apps-at-top" type="b">
       <default>false</default>
       <summary>Place Show Apps button at the start of the dock</summary>
-      <description>When true, places the Show Apps launcher button at the left/top of the dock instead of the right/bottom.</description>
+      <description>When true, places the Show Apps launcher button at the left side of the dock instead of the right side.</description>
     </key>
 
     <key name="show-show-apps-button" type="b">

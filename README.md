@@ -23,16 +23,16 @@ Derived from [Dash to Dock](https://github.com/ubuntu/dash-to-dock) (`micheleg/d
 | Feature | Default | Why It Matters |
 | :--- | :--- | :--- |
 | **Kelp-Friendly Intellihide (`ALL_WINDOWS`)** | **Active** | Stays visible on an empty desktop and automatically slides away whenever *any* window on the active workspace overlaps the dock — so Reef never pops up over unfocused tiled columns in **Kelp Seahorse** (`1 → 1/2 → 1/3`) or **Octopus** (`2D Grid`) modes. |
-| **Wayland Edge Pressure Reveal** | **`100 px`** | Push your pointer against the screen edge (`Bottom`, `Left`, `Right`, or `Top`) to smoothly slide the hidden dock into view over tiled or maximized windows. |
+| **Wayland Edge Pressure Reveal** | **`100 px`** | Push your pointer against the bottom screen edge to smoothly slide the hidden dock into view over tiled or maximized windows. |
 | **Unified Visual Language** | **`2 px` border · `6 px` margin** | Matches Kelp out of the box with a `2 px` Coral Red border (`rgb(255,0,0)`), `6 px` floating screen-edge gap, `16 px` pill radius, `80%` dark/light adaptive opacity, and the same 4 quick color presets (*Gruvbox Amber*, *Kelp Emerald*, *Ocean Cyan*, *Coral Red*). |
 | **Scroll-Wheel Window Cycling** | **`cycle-windows`** | Scroll up or down over any running application icon in the dock to cycle through its open windows on the fly (or switch workspaces). |
-| **Right-Click Quick Menu** | **Built-in** | Right-click the dock background or the **Show Apps** button to toggle **Intelligent Auto-Hide**, toggle **Panel Mode**, switch **Screen Edge (`Bottom` / `Left` / `Right` / `Top`)**, or open **Reef Settings & About…**. |
+| **Right-Click Quick Menu** | **Built-in** | Right-click the dock background or the **Show Apps** button to toggle **Intelligent Auto-Hide**, toggle **Panel Mode**, or open **Reef Settings & About…**. |
 
 ---
 
 ## Quick Install
 
-Download `reef@ubermetroid.github.io.shell-extension.zip` from [**GitHub Releases (`v1.0.4`)**](https://github.com/UberMetroid/reef/releases/latest):
+Download `reef@ubermetroid.github.io.shell-extension.zip` from [**GitHub Releases (`v1.0.5`)**](https://github.com/UberMetroid/reef/releases/latest):
 
 ```bash
 gnome-extensions install --force reef@ubermetroid.github.io.shell-extension.zip
@@ -51,10 +51,10 @@ gnome-extensions prefs reef@ubermetroid.github.io
 
 | Tab | Controls Included |
 | :--- | :--- |
-| **1. Dock & Behavior** | Screen Edge (`Bottom`, `Left`, `Right`, `Top`), Fixed Dock vs. Intelligent Auto-Hide, Intellihide Dodge Mode (`All Windows — Kelp Friendly`, `Focused Application Windows Only`, `Maximized & Fullscreen Windows Only`), Edge Pressure toggle & threshold (`20–500 px`), Fullscreen Reveal toggle, Extend to Screen Edges (`Panel Mode`), Multi-Monitor toggle, and **Reset to Reef Defaults**. |
+| **1. Dock & Behavior** | Fixed Dock vs. Intelligent Auto-Hide, Intellihide Dodge Mode (`All Windows — Kelp Friendly`, `Focused Application Windows Only`, `Maximized & Fullscreen Windows Only`), Edge Pressure toggle & threshold (`20–500 px`), Fullscreen Reveal toggle, Extend to Screen Edges (`Panel Mode`), Multi-Monitor toggle, and **Reset to Reef Defaults**. |
 | **2. Icons & Appearance** | Max Icon Size (`24–64 px`), Show Apps Button visibility & start/end placement, Pinned Favorites toggle, Running Unpinned Apps toggle, Workspace Isolation toggle, Background Opacity (`0–100%`), Accent Border toggle, Border Width (`0–8 px`), Corner Radius (`0–32 px`), Custom RGBA Color Picker, and **Quick Color Presets** (*Gruvbox Amber*, *Kelp Emerald*, *Ocean Cyan*, *Coral Red*). |
 | **3. Clicks & Scroll** | Left-Click Action (`Focus or Cycle Windows`, `Focus or Minimize`, `Launch New Window`), Middle-Click Action (`Launch New Window`, `Minimize`, `Quit Application`), Scroll Wheel Action (`Cycle Application Windows`, `Switch Active Workspace`, `Disabled`), and Quick Interaction Reference. |
-| **4. About & Support** | Release version (`v1.0.4`), `GPL-3.0-or-later` license & Dash to Dock attribution, **Star Reef on GitHub**, **Tuition, Not Coffee — Help send my daughter to college**, **Project Website**, and **Report an Issue**. |
+| **4. About & Support** | Release version (`v1.0.5`), `GPL-3.0-or-later` license & Dash to Dock attribution, **Star Reef on GitHub**, **Tuition, Not Coffee — Help send my daughter to college**, **Project Website**, and **Report an Issue**. |
 
 ---
 

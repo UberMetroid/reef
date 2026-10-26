@@ -9,12 +9,7 @@ import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import * as PopupMenu from 'resource:///org/gnome/shell/ui/popupMenu.js';
 import { MAX_TRACKED_WINDOWS } from './intellihide.js';
 
-const POPUP_SIDES = Object.freeze({
-    TOP: St.Side.TOP,
-    BOTTOM: St.Side.BOTTOM,
-    LEFT: St.Side.LEFT,
-    RIGHT: St.Side.RIGHT,
-});
+const POPUP_SIDE = St.Side.BOTTOM;
 
 export function get_app_windows(app, isolate_workspaces) {
     if (!app || typeof app.get_windows !== 'function') return [];
@@ -82,7 +77,7 @@ export class AppActionsController {
     }
 
     _popup_side() {
-        return POPUP_SIDES[this.settings.dock_position()] ?? St.Side.BOTTOM;
+        return POPUP_SIDE;
     }
 
     is_menu_open() {
@@ -114,22 +109,6 @@ export class AppActionsController {
         this._context_menu.addMenuItem(ext_item);
         this._context_menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
 
-        const edges = [
-            ['BOTTOM', _('Screen Edge: Bottom')], ['LEFT', _('Screen Edge: Left')],
-            ['RIGHT', _('Screen Edge: Right')], ['TOP', _('Screen Edge: Top')],
-        ];
-        const cur_pos = this.settings.dock_position();
-        for (const [edge_id, label] of edges) {
-            const item = new PopupMenu.PopupMenuItem(label);
-            item.setOrnament(edge_id === cur_pos ? PopupMenu.Ornament.DOT : PopupMenu.Ornament.NONE);
-            item.connect('activate', () => {
-                this._context_menu.close(BoxPointer.PopupAnimation.FULL);
-                this.settings.set_dock_position(edge_id);
-            });
-            this._context_menu.addMenuItem(item);
-        }
-
-        this._context_menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
         const prefs_item = new PopupMenu.PopupMenuItem(_('Reef Settings & About…'));
         prefs_item.connect('activate', () => {
             this._context_menu.close(BoxPointer.PopupAnimation.FULL);

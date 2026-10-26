@@ -17,7 +17,7 @@ const INTERACTION_GUIDE = Object.freeze([
     ['Left-Click Running App Icon', 'Focus window, cycle open windows, or toggle minimize', 'Left-Click'],
     ['Middle-Click App Icon', 'Launch a new window instance, minimize, or quit application', 'Middle-Click'],
     ['Scroll Wheel Over App Icon', 'Cycle through the application windows or switch workspaces', 'Scroll Wheel'],
-    ['Right-Click Dock or Show Apps', 'Quick menu for Auto-Hide, Screen Edge, and Reef Settings &amp; About…', 'Right-Click'],
+    ['Right-Click Dock or Show Apps', 'Quick menu for Auto-Hide, Panel Mode, and Reef Settings &amp; About…', 'Right-Click'],
     ['Push Pointer to Screen Edge', 'Reveal auto-hidden dock via Wayland pressure barrier', 'Edge Pressure'],
 ]);
 
@@ -181,7 +181,7 @@ export function build_about_page() {
         subtitle: 'Zero-subprocess, zero-telemetry Wayland dock extension for GNOME Shell',
     });
     ver_row.add_suffix(new Gtk.Label({
-        label: 'v1.0.4', valign: Gtk.Align.CENTER, css_classes: ['monospace'],
+        label: 'v1.0.5', valign: Gtk.Align.CENTER, css_classes: ['monospace'],
     }));
     header_group.add(ver_row);
 

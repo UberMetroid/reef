@@ -6,7 +6,7 @@ import Gdk from 'gi://Gdk';
 import Gtk from 'gi://Gtk';
 import { ExtensionPreferences } from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js';
 import { format_rgba, parse_rgba } from './ui/settings/color.js';
-import { DOCK_POSITIONS, ExtensionSettings, INTELLIHIDE_MODES } from './ui/settings/gsettings.js';
+import { ExtensionSettings, INTELLIHIDE_MODES } from './ui/settings/gsettings.js';
 import {
     BORDER_PRESETS, build_about_page, build_clicks_page,
     make_combo_row, make_spin_row, make_switch_row,
@@ -16,14 +16,8 @@ function build_behavior_page(ext_settings, settings, signals) {
     const page = new Adw.PreferencesPage({ title: 'Dock & Behavior', icon_name: 'preferences-system-symbolic' });
     const pos_group = new Adw.PreferencesGroup({
         title: 'Screen Edge &amp; Intelligent Auto-Hide',
-        description: 'Choose where Reef anchors on screen and how it dodges open windows',
+        description: 'Configure bottom-edge auto-hide behavior and how Reef dodges open windows',
     });
-    const pos_labels = ['Bottom Edge (Default)', 'Left Edge', 'Right Edge', 'Top Edge'];
-    const [pos_row, pos_combo] = make_combo_row(
-        'Screen Edge Position', 'Right-click the dock anytime to switch edges on the fly',
-        pos_labels, DOCK_POSITIONS.indexOf(settings.dock_position()),
-        (idx) => { if (idx >= 0 && idx < DOCK_POSITIONS.length) settings.set_dock_position(DOCK_POSITIONS[idx]); },
-    );
     const [fixed_row, fixed_sw] = make_switch_row(
         'Fixed Dock (Always Visible)', 'Reserve a permanent workspace strut instead of auto-hiding',
         settings.dock_fixed(), (v) => settings.set_dock_fixed(v),
@@ -42,15 +36,15 @@ function build_behavior_page(ext_settings, settings, signals) {
         ih_labels, INTELLIHIDE_MODES.indexOf(settings.intellihide_mode()),
         (idx) => { if (idx >= 0 && idx < INTELLIHIDE_MODES.length) settings.set_intellihide_mode(INTELLIHIDE_MODES[idx]); },
     );
-    for (const r of [pos_row, fixed_row, ih_row, mode_row]) pos_group.add(r);
+    for (const r of [fixed_row, ih_row, mode_row]) pos_group.add(r);
     page.add(pos_group);
 
     const edge_group = new Adw.PreferencesGroup({
         title: 'Edge Pressure &amp; Multi-Monitor Layout',
-        description: 'Configure Wayland edge-pressure reveal and full-width panel geometry',
+        description: 'Configure Wayland bottom-edge pressure reveal and full-width panel geometry',
     });
     const [press_row, press_sw] = make_switch_row(
-        'Require Edge Pressure to Reveal', 'Push the pointer against the screen edge to reveal the hidden dock',
+        'Require Edge Pressure to Reveal', 'Push the pointer against the bottom screen edge to reveal the hidden dock',
         settings.require_pressure_to_show(), (v) => settings.set_require_pressure_to_show(v),
     );
     const [thresh_row, thresh_spin] = make_spin_row(
@@ -62,7 +56,7 @@ function build_behavior_page(ext_settings, settings, signals) {
         settings.autohide_in_fullscreen(), (v) => settings.set_autohide_in_fullscreen(v),
     );
     const [ext_row, ext_sw] = make_switch_row(
-        'Extend Dock to Screen Edges (Panel Mode)', 'Stretch the dock across the full screen edge instead of a pill',
+        'Extend Dock to Screen Edges (Panel Mode)', 'Stretch the dock across the full screen width instead of a pill',
         settings.extend_height(), (v) => settings.set_extend_height(v),
     );
     const [mm_row, mm_sw] = make_switch_row(
@@ -83,8 +77,6 @@ function build_behavior_page(ext_settings, settings, signals) {
     page.add(edge_group);
 
     const sync_behavior = () => {
-        const p_idx = Math.max(0, DOCK_POSITIONS.indexOf(settings.dock_position()));
-        if (pos_combo.get_active() !== p_idx) pos_combo.set_active(p_idx);
         if (fixed_sw.active !== settings.dock_fixed()) fixed_sw.active = settings.dock_fixed();
         if (ih_sw.active !== settings.intellihide()) ih_sw.active = settings.intellihide();
         const m_idx = Math.max(0, INTELLIHIDE_MODES.indexOf(settings.intellihide_mode()));
@@ -96,7 +88,7 @@ function build_behavior_page(ext_settings, settings, signals) {
         if (mm_sw.active !== settings.multi_monitor()) mm_sw.active = settings.multi_monitor();
     };
     const b_keys = [
-        'dock-position', 'dock-fixed', 'intellihide', 'intellihide-mode',
+        'dock-fixed', 'intellihide', 'intellihide-mode',
         'require-pressure-to-show', 'pressure-threshold', 'autohide-in-fullscreen', 'extend-height', 'multi-monitor',
     ];
     for (const k of b_keys) {
@@ -120,7 +112,7 @@ function build_appearance_page(ext_settings, settings, signals) {
         settings.show_show_apps_button(), (v) => settings.set_show_show_apps_button(v),
     );
     const [top_row, top_sw] = make_switch_row(
-        'Place Show Apps Button at Start', 'Put Show Apps at the left or top edge instead of the end',
+        'Place Show Apps Button at Start', 'Put Show Apps at the left edge instead of the right end',
         settings.show_apps_at_top(), (v) => settings.set_show_apps_at_top(v),
     );
     const [fav_row, fav_sw] = make_switch_row(
