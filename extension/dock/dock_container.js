@@ -19,7 +19,7 @@ export class DockContainer {
     constructor(monitor_index, settings, extension) {
         this.monitor_index = monitor_index; this.settings = settings; this.extension = extension;
         this._chrome_added = false; this._chrome_struts = false;
-        this._edge_revealed = false; this._is_hidden = false;
+        this._edge_revealed = false; this._is_hidden = false; this._pos_idle_id = 0;
         this._signals = []; this._overview_signals = [];
         this.actor = new St.BoxLayout({
             name: 'reef-dock', style_class: 'reef-dock-container reef-dock-pill',
@@ -57,9 +57,15 @@ export class DockContainer {
             [this.dash, this.dash.connect('notify::hover', on_hover)],
             [this.actor, this.actor.connect('enter-event', on_enter)],
             [this.actor, this.actor.connect('leave-event', on_leave)],
-            [this.actor, this.actor.connect('notify::width', () => this._position_actor())],
-            [this.actor, this.actor.connect('notify::height', () => this._position_actor())],
+            [this.actor, this.actor.connect('notify::width', () => this._queue_position())],
+            [this.actor, this.actor.connect('notify::height', () => this._queue_position())],
         );
+    }
+    _queue_position() {
+        if (this._pos_idle_id > 0) return;
+        this._pos_idle_id = GLib.idle_add(GLib.PRIORITY_DEFAULT_IDLE, () => {
+            this._pos_idle_id = 0; this._position_actor(); return GLib.SOURCE_REMOVE;
+        });
     }
     _bind_overview() {
         this._overview_signals.push(
@@ -184,10 +190,12 @@ export class DockContainer {
     }
 
     _position_actor() {
+        if (!this.actor) return;
         const box = this.get_static_box(), extend = this.settings.extend_height(), is_vert = this.settings.is_vertical();
-        this.actor.set_width(extend && !is_vert ? box.width : -1);
-        this.actor.set_height(extend && is_vert ? box.height : -1);
-        this.actor.set_position(box.x, box.y);
+        const want_w = extend && !is_vert ? box.width : -1, want_h = extend && is_vert ? box.height : -1;
+        if (want_w !== -1 ? this.actor.width !== want_w : this.actor.fixed_width_set) this.actor.set_width(want_w);
+        if (want_h !== -1 ? this.actor.height !== want_h : this.actor.fixed_height_set) this.actor.set_height(want_h);
+        if (this.actor.x !== box.x || this.actor.y !== box.y) this.actor.set_position(box.x, box.y);
     }
 
     is_pointer_inside() {
@@ -232,6 +240,7 @@ export class DockContainer {
     }
 
     destroy() {
+        if (this._pos_idle_id > 0) { GLib.source_remove(this._pos_idle_id); this._pos_idle_id = 0; }
         for (const id of this._overview_signals) { try { Main.overview.disconnect(id); } catch (_e) { /* ignore */ } }
         this._overview_signals.length = 0;
         for (const [obj, sig] of this._signals) { try { obj.disconnect(sig); } catch (_e) { /* ignore */ } }
