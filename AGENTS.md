@@ -2,7 +2,7 @@
 
 ## 1. Global Engineering Philosophy
 
-Reef (`reef@ubermetroid.github.io`) is built on four uncompromising engineering pillars:
+Reef (`reef@studio2201.github.io`) is built on four uncompromising engineering pillars:
 
 1. **Linus Torvalds' "Good Taste"**: Eliminate special-case branching through clean data representation (immutable frozen enums, pure rectangle overlap predicates, and unified horizontal/vertical dock axis transforms).
 2. **UNIX Philosophy**: Each module ("page") does one thing well, composes cleanly via explicit imports, and avoids hidden global state.

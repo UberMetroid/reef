@@ -41,19 +41,19 @@ jobs:
             --schema=schemas/org.gnome.shell.extensions.reef.gschema.xml \
             --extra-source=dock \
             --extra-source=ui
-          unzip -l dist/reef@ubermetroid.github.io.shell-extension.zip
+          unzip -l dist/reef@studio2201.github.io.shell-extension.zip
 
       - name: Run shexli EGO static review analyzer (0 errors, 0 warnings)
         run: |
-          pipx run shexli dist/reef@ubermetroid.github.io.shell-extension.zip
+          pipx run shexli dist/reef@studio2201.github.io.shell-extension.zip
 
       - name: Official EGO Review Gate (Metadata, Zip Audit, & gnome-extensions install)
         run: |
           set -euo pipefail
-          ZIP="dist/reef@ubermetroid.github.io.shell-extension.zip"
+          ZIP="dist/reef@studio2201.github.io.shell-extension.zip"
 
           echo "==> 1. Validating metadata.json required EGO fields..."
-          jq -e '.uuid == "reef@ubermetroid.github.io" and .name == "Studio 2201: Reef (Dock & Panel)" and (.["shell-version"] | length >= 1) and .["settings-schema"] == "org.gnome.shell.extensions.reef"' extension/metadata.json >/dev/null
+          jq -e '.uuid == "reef@studio2201.github.io" and .name == "Studio 2201: Reef (Dock & Panel)" and (.["shell-version"] | length >= 1) and .["settings-schema"] == "org.gnome.shell.extensions.reef"' extension/metadata.json >/dev/null
 
           echo "==> 2. Auditing .shell-extension.zip for EGO forbidden files..."
           CONTENTS="$(unzip -Z1 "$ZIP")"
@@ -74,11 +74,11 @@ jobs:
 
           echo "==> 4. Testing installation via official gnome-extensions CLI..."
           gnome-extensions install --force "$ZIP"
-          test -f "$HOME/.local/share/gnome-shell/extensions/reef@ubermetroid.github.io/extension.js"
-          test -f "$HOME/.local/share/gnome-shell/extensions/reef@ubermetroid.github.io/metadata.json"
+          test -f "$HOME/.local/share/gnome-shell/extensions/reef@studio2201.github.io/extension.js"
+          test -f "$HOME/.local/share/gnome-shell/extensions/reef@studio2201.github.io/metadata.json"
 
       - name: Upload EGO extension zip artifact
         uses: actions/upload-artifact@v4
         with:
           name: reef-shell-extension-zip
-          path: dist/reef@ubermetroid.github.io.shell-extension.zip
+          path: dist/reef@studio2201.github.io.shell-extension.zip

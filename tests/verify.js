@@ -113,7 +113,7 @@ function verify_process_boundaries_and_invariants() {
         'FOCUSED_WINDOW', 'MAXIMIZED_ONLY', '"45"', '"50"', '"settings-schema": "org.gnome.shell.extensions.reef"',
         'name="dock-position"', 'name="intellihide-mode"', 'name="border-color-rgba"', 'name="dock-margin"',
         "'rgb(255,0,0)'", 'Gruvbox Amber', 'Kelp Emerald', 'Ocean Cyan', 'Coral Red',
-        'v1.1.0', 'match_preset(', 'Screen Edge &amp; Intelligent Auto-Hide',
+        'v1.2.0', 'match_preset(', 'Screen Edge &amp; Intelligent Auto-Hide',
         '"name": "Studio 2201: Reef (Dock & Panel)"', 'Sync Color Across Suite', 'sync_color_across_suite',
         'Support &amp; Community', 'Adw.ActionRow({ title: gesture, subtitle: desc })',
         'this.unload_theme()', 'load_stylesheet(file)', 'sizer.clear_constraints()',
@@ -138,12 +138,12 @@ async function verify_behavioral_and_gtk_suite() {
     const mem_backend = Gio.memory_settings_backend_new();
     const ext_settings = new Gio.Settings({ settings_schema: src.lookup('org.gnome.shell.extensions.reef', true), backend: mem_backend });
     const s = new ExtensionSettings(ext_settings);
-    const suite_dir = GLib.build_filenamev([tmp_dir, 'reef@ubermetroid.github.io', 'schemas']), suite_comp = GLib.build_filenamev([suite_dir, 'gschemas.compiled']);
+    const suite_dir = GLib.build_filenamev([tmp_dir, 'reef@studio2201.github.io', 'schemas']), suite_comp = GLib.build_filenamev([suite_dir, 'gschemas.compiled']);
     GLib.mkdir_with_parents(suite_dir, 0o755);
     Gio.File.new_for_path(GLib.build_filenamev([tmp_dir, 'gschemas.compiled'])).copy(Gio.File.new_for_path(suite_comp), Gio.FileCopyFlags.OVERWRITE, null, null);
     assert(SUITE_COLOR_TARGETS.length === 5 && sync_color_across_suite('#6ad7e1', tmp_dir, mem_backend) === 1 && s.border_color_rgba() === 'rgba(106, 215, 225, 1)', 'suite sync');
     s.reset_defaults();
-    for (const p of [suite_comp, suite_dir, GLib.build_filenamev([tmp_dir, 'reef@ubermetroid.github.io'])]) Gio.File.new_for_path(p).delete(null);
+    for (const p of [suite_comp, suite_dir, GLib.build_filenamev([tmp_dir, 'reef@studio2201.github.io'])]) Gio.File.new_for_path(p).delete(null);
 
     assert(s.dock_position() === 'BOTTOM' && !s.is_vertical() && !s.dock_fixed() && s.intellihide() && !s.show_icon_background(), 'defaults');
     assert(s.intellihide_mode() === 'ALL_WINDOWS' && s.dash_max_icon_size() === 48 && s.border_width() === 2 && s.dock_margin() === 6, 'sizes');

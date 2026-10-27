@@ -4,17 +4,17 @@
 
 # Reef
 
-[![CI & EGO Bundle Verification](https://github.com/UberMetroid/reef/actions/workflows/ci.yml/badge.svg)](https://github.com/UberMetroid/reef/actions/workflows/ci.yml)
-[![Release](https://img.shields.io/github/v/release/UberMetroid/reef)](https://github.com/UberMetroid/reef/releases/latest)
+[![CI & EGO Bundle Verification](https://github.com/studio2201/reef/actions/workflows/ci.yml/badge.svg)](https://github.com/studio2201/reef/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/studio2201/reef)](https://github.com/studio2201/reef/releases/latest)
 [![License: GPL-3.0-or-later](https://img.shields.io/badge/License-GPL--3.0--or--later-blue.svg)](LICENSE)
 [![Sponsor: Tuition, Not Coffee](https://img.shields.io/badge/Sponsor-Tuition%2C%20Not%20Coffee%20%F0%9F%8E%93-2ec27e)](https://ubermetroid.github.io/tuition-not-coffee)
-[![Star on GitHub](https://img.shields.io/github/stars/UberMetroid/reef?style=social)](https://github.com/UberMetroid/reef)
+[![Star on GitHub](https://img.shields.io/github/stars/studio2201/reef?style=social)](https://github.com/studio2201/reef)
 
-**Reef** (`reef@ubermetroid.github.io`) is a fast, Wayland-native intelligent dock extension for **GNOME Shell 45–50**. It turns GNOME's Overview Dash into a responsive screen-edge dock with **Wayland pressure barriers**, **Kelp-friendly window-dodge intellihide**, **mouse-wheel window & workspace cycling**, **floating pill or full-edge panel styling**, and a **4-tab Libadwaita Settings & About dialog**.
+**Reef** (`reef@studio2201.github.io`) is a fast, Wayland-native intelligent dock extension for **GNOME Shell 45–50**. It turns GNOME's Overview Dash into a responsive screen-edge dock with **Wayland pressure barriers**, **Kelp-friendly window-dodge intellihide**, **mouse-wheel window & workspace cycling**, **floating pill or full-edge panel styling**, and a **4-tab Libadwaita Settings & About dialog**.
 
-Derived from [Dash to Dock](https://github.com/ubuntu/dash-to-dock) (`micheleg/dash-to-dock` / `ubuntu/dash-to-dock`) — stripped of ~85% of legacy Ubuntu Unity and GNOME 3 bloat, and engineered under the same strict [`AGENTS.md`](AGENTS.md) Page Rule and EGO standards as [**Kelp**](https://github.com/UberMetroid/kelp). Official project artwork is archived in [`brand/`](brand/) (`icon-512.png`, `icon-256.png`, `icon-160.png`, `favicon-64.png`).
+Derived from [Dash to Dock](https://github.com/ubuntu/dash-to-dock) (`micheleg/dash-to-dock` / `ubuntu/dash-to-dock`) — stripped of ~85% of legacy Ubuntu Unity and GNOME 3 bloat, and engineered under the same strict [`AGENTS.md`](AGENTS.md) Page Rule and EGO standards as [**Kelp**](https://github.com/studio2201/kelp). Official project artwork is archived in [`brand/`](brand/) (`icon-512.png`, `icon-256.png`, `icon-160.png`, `favicon-64.png`).
 
-> 🎓 **Support Reef — [Tuition, Not Coffee — Help send my daughter to college](https://ubermetroid.github.io/tuition-not-coffee)** · 🌐 [**Project Website (`ubermetroid.github.io/reef`)**](https://ubermetroid.github.io/reef/) · ⭐ [**Star UberMetroid/reef on GitHub**](https://github.com/UberMetroid/reef)
+> 🎓 **Support Reef — [Tuition, Not Coffee — Help send my daughter to college](https://ubermetroid.github.io/tuition-not-coffee)** · 🌐 [**Project Website (`studio2201.github.io/reef`)**](https://studio2201.github.io/reef/) · ⭐ [**Star studio2201/reef on GitHub**](https://github.com/studio2201/reef)
 
 ---
 
@@ -32,17 +32,17 @@ Derived from [Dash to Dock](https://github.com/ubuntu/dash-to-dock) (`micheleg/d
 
 ## Quick Install
 
-Download `reef@ubermetroid.github.io.shell-extension.zip` from [**GitHub Releases (`v1.1.0`)**](https://github.com/UberMetroid/reef/releases/latest):
+Download `reef@studio2201.github.io.shell-extension.zip` from [**GitHub Releases (`v1.2.0`)**](https://github.com/studio2201/reef/releases/latest):
 
 ```bash
-gnome-extensions install --force reef@ubermetroid.github.io.shell-extension.zip
-gnome-extensions enable reef@ubermetroid.github.io
+gnome-extensions install --force reef@studio2201.github.io.shell-extension.zip
+gnome-extensions enable reef@studio2201.github.io
 ```
 
 Open the 4-tab Libadwaita Preferences window anytime by right-clicking the dock and choosing **Reef Settings & About…**, or by running:
 
 ```bash
-gnome-extensions prefs reef@ubermetroid.github.io
+gnome-extensions prefs reef@studio2201.github.io
 ```
 
 ---
@@ -54,7 +54,7 @@ gnome-extensions prefs reef@ubermetroid.github.io
 | **1. Dock & Behavior** | Fixed Dock vs. Intelligent Auto-Hide, Intellihide Dodge Mode (`All Windows — Kelp Friendly`, `Focused Application Windows Only`, `Maximized & Fullscreen Windows Only`), Edge Pressure toggle & threshold (`20–500 px`), Fullscreen Reveal toggle, Extend to Screen Edges (`Panel Mode`), Multi-Monitor toggle, and **Reset to Reef Defaults**. |
 | **2. Icons & Appearance** | Max Icon Size (`24–64 px`), Show Apps Button visibility & start/end placement, Pinned Favorites toggle, Running Unpinned Apps toggle, Workspace Isolation toggle, App Icon Background Tiles toggle, Background Opacity (`0–100%`), Accent Border toggle, Border Width (`0–8 px`), Corner Radius (`0–32 px`), Floating Screen-Edge Margin (`0–24 px`), Custom RGBA Color Picker, **Quick Color Presets** (*Gruvbox Amber*, *Kelp Emerald*, *Ocean Cyan*, *Coral Red*), and **Sync Color Across Suite** (`Sync Suite Color`). |
 | **3. Clicks & Scroll** | Left-Click Action (`Focus or Cycle Windows`, `Focus or Minimize`, `Launch New Window`), Middle-Click Action (`Launch New Window`, `Minimize`, `Quit Application`), Scroll Wheel Action (`Cycle Application Windows`, `Switch Active Workspace`, `Disabled`), and Quick Interaction Reference. |
-| **4. About & Support** | Release version (`v1.1.0`), `GPL-3.0-or-later` license & Dash to Dock attribution, **Star Reef on GitHub**, **Tuition, Not Coffee — Help send my daughter to college**, **Project Website**, and **Report an Issue**. |
+| **4. About & Support** | Release version (`v1.2.0`), `GPL-3.0-or-later` license & Dash to Dock attribution, **Star Reef on GitHub**, **Tuition, Not Coffee — Help send my daughter to college**, **Project Website**, and **Report an Issue**. |
 
 ---
 
@@ -81,7 +81,7 @@ gjs -m tests/verify.js
 gnome-extensions pack extension --force --out-dir=dist \
   --schema=schemas/org.gnome.shell.extensions.reef.gschema.xml \
   --extra-source=dock --extra-source=ui
-pipx run shexli dist/reef@ubermetroid.github.io.shell-extension.zip
+pipx run shexli dist/reef@studio2201.github.io.shell-extension.zip
 ```
 
 ---
@@ -91,8 +91,8 @@ pipx run shexli dist/reef@ubermetroid.github.io.shell-extension.zip
 If Reef and Kelp improve your daily Linux workflow, please consider supporting development:
 
 - 🎓 **Sponsor / Donate**: [**Tuition, Not Coffee — Help send my daughter to college**](https://ubermetroid.github.io/tuition-not-coffee)
-- 🌐 **Project Website**: [**ubermetroid.github.io/reef**](https://ubermetroid.github.io/reef/)
-- ⭐ **Star on GitHub**: [**github.com/UberMetroid/reef**](https://github.com/UberMetroid/reef)
+- 🌐 **Project Website**: [**studio2201.github.io/reef**](https://studio2201.github.io/reef/)
+- ⭐ **Star on GitHub**: [**github.com/studio2201/reef**](https://github.com/studio2201/reef)
 
 ---
 

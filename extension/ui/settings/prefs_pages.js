@@ -181,7 +181,7 @@ export function build_about_page() {
         subtitle: 'Zero-subprocess, zero-telemetry Wayland dock extension for GNOME Shell',
     });
     ver_row.add_suffix(new Gtk.Label({
-        label: 'v1.1.0', valign: Gtk.Align.CENTER, css_classes: ['monospace'],
+        label: 'v1.2.0', valign: Gtk.Align.CENTER, css_classes: ['monospace'],
     }));
     header_group.add(ver_row);
 
@@ -204,9 +204,9 @@ export function build_about_page() {
     add_link_row(
         support_group,
         'Star Reef on GitHub',
-        'Star UberMetroid/reef to help other GNOME &amp; Linux users discover Reef',
+        'Star studio2201/reef to help other GNOME &amp; Linux users discover Reef',
         'Star on GitHub',
-        'https://github.com/UberMetroid/reef',
+        'https://github.com/studio2201/reef',
     );
     add_link_row(
         support_group,
@@ -214,21 +214,21 @@ export function build_about_page() {
         "Skip the coffee — 100% of sponsorships go toward my daughter's college &amp; future fund",
         'Tuition, Not Coffee',
         'https://ubermetroid.github.io/tuition-not-coffee',
-        'https://github.com/UberMetroid/reef',
+        'https://github.com/studio2201/reef',
     );
     add_link_row(
         support_group,
         'Project Website &amp; Documentation',
         'Explore the Reef feature guide, Kelp integration overview, and configuration reference',
         'Open Website',
-        'https://ubermetroid.github.io/reef/',
+        'https://studio2201.github.io/reef/',
     );
     add_link_row(
         support_group,
         'Report an Issue or Request a Feature',
         'Found a bug or have a feature request? Open an issue on GitHub',
         'Report Issue',
-        'https://github.com/UberMetroid/reef/issues',
+        'https://github.com/studio2201/reef/issues',
     );
 
     page.add(support_group);
