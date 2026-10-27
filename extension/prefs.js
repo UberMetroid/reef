@@ -5,7 +5,7 @@ import Adw from 'gi://Adw';
 import Gdk from 'gi://Gdk';
 import Gtk from 'gi://Gtk';
 import { ExtensionPreferences } from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js';
-import { format_rgba, parse_rgba } from './ui/settings/color.js';
+import { format_rgba, parse_rgba, sync_color_across_suite } from './ui/settings/color.js';
 import { ExtensionSettings, INTELLIHIDE_MODES } from './ui/settings/gsettings.js';
 import {
     BORDER_PRESETS, build_about_page, build_clicks_page,
@@ -169,6 +169,15 @@ function build_appearance_page(ext_settings, settings, signals) {
             }
         },
     );
+    const sync_row = new Adw.ActionRow({
+        title: 'Sync Color Across Suite',
+        subtitle: 'Apply this accent border color to all installed Studio 2201 extensions (Coral, Kelp, Reef, Seabed, Tide)',
+    });
+    const sync_btn = new Gtk.Button({ label: 'Sync Suite Color', valign: Gtk.Align.CENTER, css_classes: ['pill'] });
+    sync_btn.connect('clicked', () => sync_color_across_suite(settings.border_color_rgba()));
+    sync_row.add_suffix(sync_btn);
+    sync_row.activatable_widget = sync_btn;
+
     const [bw_row, bw_spin] = make_spin_row(
         'Border Width (px)', 'Thickness of the dock border ring (0–8 px, default 2 px)',
         settings.border_width(), 0, 8, 1, (v) => settings.set_border_width(v),
@@ -181,7 +190,7 @@ function build_appearance_page(ext_settings, settings, signals) {
         'Floating Screen-Edge Margin (px)', 'Gap between the floating dock pill and the bottom screen edge (0–24 px, default 6 px)',
         settings.dock_margin(), 0, 24, 1, (v) => settings.set_dock_margin(v),
     );
-    for (const r of [op_row, bdr_row, color_row, preset_row, bw_row, br_row, mg_row]) style_group.add(r);
+    for (const r of [op_row, bdr_row, color_row, preset_row, sync_row, bw_row, br_row, mg_row]) style_group.add(r);
     page.add(style_group);
 
     const sync_style = () => {

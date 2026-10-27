@@ -1,11 +1,11 @@
 {
-    "name": "Reef",
+    "name": "Studio 2201: Reef (Dock & Panel)",
     "description": "Lightweight, Wayland-native intelligent dock for GNOME Shell with auto-hide pressure barriers, window-dodge intellihide, scroll window cycling, and custom pill styling.\n\nDerived from Dash to Dock (GPL-2.0-or-later / GPL-3.0-or-later).",
     "uuid": "reef@ubermetroid.github.io",
     "url": "https://github.com/UberMetroid/reef",
     "settings-schema": "org.gnome.shell.extensions.reef",
     "gettext-domain": "reef@ubermetroid.github.io",
-    "version-name": "1.0.6",
+    "version-name": "1.1.0",
     "shell-version": [
         "45",
         "46",

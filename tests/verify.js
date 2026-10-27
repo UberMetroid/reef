@@ -11,7 +11,7 @@ import {
     build_dock_background_css, build_running_dot_css, build_separator_css, compute_dock_margins,
     DOCK_EDGE_MARGIN, EDGE_GEOMETRY, is_shared_monitor_edge,
 } from '../extension/ui/dock_style.js';
-import { format_rgba, is_dark_rgba, parse_rgba, text_color_for_css } from '../extension/ui/settings/color.js';
+import { SUITE_COLOR_TARGETS, format_rgba, is_dark_rgba, parse_rgba, sync_color_across_suite, text_color_for_css } from '../extension/ui/settings/color.js';
 import {
     CLICK_ACTIONS, DOCK_POSITIONS, ExtensionSettings, INTELLIHIDE_MODES,
     MIDDLE_CLICK_ACTIONS, SCROLL_ACTIONS,
@@ -20,9 +20,7 @@ import {
     BORDER_PRESETS, build_about_page, build_clicks_page, make_combo_row, make_spin_row, make_switch_row,
 } from '../extension/ui/settings/prefs_pages.js';
 
-const BANNED_STEMS = new Set([
-    'util', 'utils', 'lib', 'helper', 'helpers', 'common', 'misc', 'shared', 'base', 'core', 'types', 'mod',
-]);
+const BANNED_STEMS = new Set(['util', 'utils', 'lib', 'helper', 'helpers', 'common', 'misc', 'shared', 'base', 'core', 'types', 'mod']);
 const DECODER = new TextDecoder('utf-8');
 const REPO_ROOT = Gio.File.new_for_uri(import.meta.url).get_parent().get_parent().get_path();
 const EXT_ROOT = GLib.build_filenamev([REPO_ROOT, 'extension']);
@@ -31,17 +29,13 @@ function assert(cond, msg) { if (!cond) throw new Error(`Verification failed: ${
 
 function read_text(path) {
     const [ok, bytes] = GLib.file_get_contents(path);
-    assert(ok, `failed to read ${path}`);
-    return DECODER.decode(bytes);
+    assert(ok, `failed to read ${path}`); return DECODER.decode(bytes);
 }
 
 function walk_repo(dir_path, js_files, dirs) {
     dirs.push(dir_path);
-    const enumerator = Gio.File.new_for_path(dir_path).enumerate_children(
-        'standard::name,standard::type', Gio.FileQueryInfoFlags.NONE, null,
-    );
-    let info;
-    while ((info = enumerator.next_file(null)) !== null) {
+    const enumerator = Gio.File.new_for_path(dir_path).enumerate_children('standard::name,standard::type', Gio.FileQueryInfoFlags.NONE, null);
+    for (let info; (info = enumerator.next_file(null)) !== null;) {
         const name = info.get_name();
         if (name.startsWith('.') || name === 'dist' || name === 'target') continue;
         const full = GLib.build_filenamev([dir_path, name]);
@@ -53,29 +47,19 @@ function walk_repo(dir_path, js_files, dirs) {
 
 function verify_page_rules_and_lint(js_files, dirs) {
     assert(js_files.length === 12, `expected 12 .js files, found ${js_files.length}`);
-    const legacy = [
-        'imports.gi', 'imports.ui', 'imports.misc', 'ExtensionUtils',
-        'Meta.LaterType', 'Clutter.Container', 'add_actor', 'remove_actor',
-    ];
+    const legacy = ['imports.gi', 'imports.ui', 'imports.misc', 'ExtensionUtils', 'Meta.LaterType', 'Clutter.Container', 'add_actor', 'remove_actor'];
     for (const file of js_files) {
         const content = read_text(file);
         const lines = content.endsWith('\n') ? content.slice(0, -1).split('\n') : content.split('\n');
-        assert(lines.length >= 16 && lines.length <= 256,
-            `Page Rule violation: ${file} has ${lines.length} lines (16..=256)`);
+        assert(lines.length >= 16 && lines.length <= 256, `Page Rule violation: ${file} has ${lines.length} lines (16..=256)`);
         assert(lines[0] === '// SPDX-License-Identifier: GPL-3.0-or-later', `Missing SPDX header in ${file}`);
-        assert(lines[1].startsWith('// ') && lines[1].length >= 12,
-            `Missing concise module description on line 2 of ${file}`);
-        if (file.startsWith(EXT_ROOT)) {
-            for (const sym of legacy) {
-                assert(!content.includes(sym), `Forbidden legacy symbol '${sym}' in ${file}`);
-            }
-        }
+        assert(lines[1].startsWith('// ') && lines[1].length >= 12, `Missing concise module description on line 2 of ${file}`);
+        if (file.startsWith(EXT_ROOT)) for (const sym of legacy) assert(!content.includes(sym), `Forbidden legacy symbol '${sym}' in ${file}`);
         for (let idx = 0; idx < lines.length; idx += 1) {
             const raw = lines[idx], ln = idx + 1, code = raw.split('//')[0];
             assert(raw.length <= 200, `Line ${ln} of ${file} exceeds 200 chars (${raw.length})`);
             if (!file.startsWith(EXT_ROOT)) continue;
-            assert(!code.trimStart().startsWith('var ') && !code.includes(' var ') && !code.includes('(var '),
-                `Forbidden var in ${file}:${ln}`);
+            assert(!code.trimStart().startsWith('var ') && !code.includes(' var ') && !code.includes('(var '), `Forbidden var in ${file}:${ln}`);
             for (let i = 0; i < code.length - 1; i += 1) {
                 const prev = i > 0 ? code[i - 1] : '';
                 const prev_eq = prev === '=' || prev === '!' || prev === '<' || prev === '>';
@@ -86,18 +70,14 @@ function verify_page_rules_and_lint(js_files, dirs) {
         }
     }
     for (const dir_path of dirs) {
-        const enumerator = Gio.File.new_for_path(dir_path).enumerate_children(
-            'standard::name', Gio.FileQueryInfoFlags.NONE, null,
-        );
+        const enumerator = Gio.File.new_for_path(dir_path).enumerate_children('standard::name', Gio.FileQueryInfoFlags.NONE, null);
         const visible = [];
-        let info;
-        while ((info = enumerator.next_file(null)) !== null) {
+        for (let info; (info = enumerator.next_file(null)) !== null;) {
             const name = info.get_name();
             if (!name.startsWith('.') && name !== 'dist' && name !== 'target') visible.push(name);
         }
         enumerator.close(null);
-        assert(visible.length <= 8,
-            `Directory density violation: ${dir_path} has ${visible.length} visible entries (max 8)`);
+        assert(visible.length <= 8, `Directory density violation: ${dir_path} has ${visible.length} visible entries (max 8)`);
         for (const name of visible) {
             const stem = (name.includes('.') ? name.slice(0, name.lastIndexOf('.')) : name).toLowerCase();
             assert(!BANNED_STEMS.has(stem), `Banned generic name '${name}' in ${dir_path}`);
@@ -106,17 +86,12 @@ function verify_page_rules_and_lint(js_files, dirs) {
 }
 
 function verify_process_boundaries_and_invariants() {
-    const shared = [
-        'prefs.js', 'dock/intellihide.js', 'ui/dock_style.js',
-        'ui/settings/gsettings.js', 'ui/settings/color.js', 'ui/settings/prefs_pages.js',
-    ];
+    const shared = ['prefs.js', 'dock/intellihide.js', 'ui/dock_style.js', 'ui/settings/gsettings.js', 'ui/settings/color.js', 'ui/settings/prefs_pages.js'];
     const compositor_only = ['gi://Meta', 'gi://Clutter', 'gi://St', 'gi://Shell', 'resource:///org/gnome/shell/'];
     for (const rel of shared) {
         for (const raw of read_text(GLib.build_filenamev([EXT_ROOT, rel])).split('\n')) {
             const code = raw.split('//')[0];
-            for (const sym of compositor_only) {
-                assert(!code.includes(sym), `Process-boundary violation: ${rel} imports '${sym}'`);
-            }
+            for (const sym of compositor_only) assert(!code.includes(sym), `Process-boundary violation: ${rel} imports '${sym}'`);
         }
     }
     const check_files = [
@@ -138,7 +113,8 @@ function verify_process_boundaries_and_invariants() {
         'FOCUSED_WINDOW', 'MAXIMIZED_ONLY', '"45"', '"50"', '"settings-schema": "org.gnome.shell.extensions.reef"',
         'name="dock-position"', 'name="intellihide-mode"', 'name="border-color-rgba"', 'name="dock-margin"',
         "'rgb(255,0,0)'", 'Gruvbox Amber', 'Kelp Emerald', 'Ocean Cyan', 'Coral Red',
-        'v1.0.6', 'match_preset(', 'Screen Edge &amp; Intelligent Auto-Hide',
+        'v1.1.0', 'match_preset(', 'Screen Edge &amp; Intelligent Auto-Hide',
+        '"name": "Studio 2201: Reef (Dock & Panel)"', 'Sync Color Across Suite', 'sync_color_across_suite',
         'Support &amp; Community', 'Adw.ActionRow({ title: gesture, subtitle: desc })',
         'this.unload_theme()', 'load_stylesheet(file)', 'sizer.clear_constraints()',
         '.reef-dock-container #dash .dash-item-container .overview-tile', 'reef-icon-tiles',
@@ -154,19 +130,20 @@ function verify_process_boundaries_and_invariants() {
 }
 
 async function verify_behavioral_and_gtk_suite() {
-    const tmp_dir = GLib.dir_make_tmp('reef-verify-XXXXXX');
-    const schema_xml = 'org.gnome.shell.extensions.reef.gschema.xml';
+    const tmp_dir = GLib.dir_make_tmp('reef-verify-XXXXXX'), schema_xml = 'org.gnome.shell.extensions.reef.gschema.xml';
     const dst_xml = Gio.File.new_for_path(GLib.build_filenamev([tmp_dir, schema_xml]));
-    Gio.File.new_for_path(GLib.build_filenamev([EXT_ROOT, 'schemas', schema_xml]))
-        .copy(dst_xml, Gio.FileCopyFlags.OVERWRITE, null, null);
-    assert(Gio.Subprocess.new(['glib-compile-schemas', tmp_dir], Gio.SubprocessFlags.NONE).wait_check(null),
-        'glib-compile-schemas');
+    Gio.File.new_for_path(GLib.build_filenamev([EXT_ROOT, 'schemas', schema_xml])).copy(dst_xml, Gio.FileCopyFlags.OVERWRITE, null, null);
+    assert(Gio.Subprocess.new(['glib-compile-schemas', tmp_dir], Gio.SubprocessFlags.NONE).wait_check(null), 'glib-compile-schemas');
     const src = Gio.SettingsSchemaSource.new_from_directory(tmp_dir, Gio.SettingsSchemaSource.get_default(), false);
-    const ext_settings = new Gio.Settings({
-        settings_schema: src.lookup('org.gnome.shell.extensions.reef', true),
-        backend: Gio.memory_settings_backend_new(),
-    });
+    const mem_backend = Gio.memory_settings_backend_new();
+    const ext_settings = new Gio.Settings({ settings_schema: src.lookup('org.gnome.shell.extensions.reef', true), backend: mem_backend });
     const s = new ExtensionSettings(ext_settings);
+    const suite_dir = GLib.build_filenamev([tmp_dir, 'reef@ubermetroid.github.io', 'schemas']), suite_comp = GLib.build_filenamev([suite_dir, 'gschemas.compiled']);
+    GLib.mkdir_with_parents(suite_dir, 0o755);
+    Gio.File.new_for_path(GLib.build_filenamev([tmp_dir, 'gschemas.compiled'])).copy(Gio.File.new_for_path(suite_comp), Gio.FileCopyFlags.OVERWRITE, null, null);
+    assert(SUITE_COLOR_TARGETS.length === 5 && sync_color_across_suite('#6ad7e1', tmp_dir, mem_backend) === 1 && s.border_color_rgba() === 'rgba(106, 215, 225, 1)', 'suite sync');
+    s.reset_defaults();
+    for (const p of [suite_comp, suite_dir, GLib.build_filenamev([tmp_dir, 'reef@ubermetroid.github.io'])]) Gio.File.new_for_path(p).delete(null);
 
     assert(s.dock_position() === 'BOTTOM' && !s.is_vertical() && !s.dock_fixed() && s.intellihide() && !s.show_icon_background(), 'defaults');
     assert(s.intellihide_mode() === 'ALL_WINDOWS' && s.dash_max_icon_size() === 48 && s.border_width() === 2 && s.dock_margin() === 6, 'sizes');
