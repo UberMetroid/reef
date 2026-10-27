@@ -20,6 +20,7 @@ jobs:
 
       - name: Install GNOME Shell & EGO validation tools
         run: |
+          sudo sed -i 's|http://azure.archive.ubuntu.com/ubuntu|http://ubuntu.osuosl.org/ubuntu|g' /etc/apt/sources.list /etc/apt/sources.list.d/* 2>/dev/null || true
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends libglib2.0-bin gnome-shell-common gnome-shell gir1.2-adw-1 gir1.2-gtk-4.0 gjs libxml2-utils jq unzip pipx
 
