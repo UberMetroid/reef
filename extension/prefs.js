@@ -69,7 +69,9 @@ function build_behavior_page(ext_settings, settings, signals) {
         title: 'Reset to Reef Defaults (border=2, margin=6)',
         subtitle: 'Restore Bottom Auto-Hide, Kelp-friendly All Windows dodge, 48px icons, and Coral Red border',
     });
-    const reset_btn = new Gtk.Button({ label: 'Reset Defaults', valign: Gtk.Align.CENTER, css_classes: ['suggested-action'] });
+    const reset_btn = new Gtk.Button({
+        label: 'Reset Defaults', valign: Gtk.Align.CENTER, css_classes: ['destructive-action', 'pill'],
+    });
     reset_btn.connect('clicked', () => settings.reset_defaults());
     reset_row.add_suffix(reset_btn);
     reset_row.activatable_widget = reset_btn;
@@ -154,12 +156,14 @@ function build_appearance_page(ext_settings, settings, signals) {
     const color_btn = new Gtk.ColorButton({ rgba, use_alpha: true, valign: Gtk.Align.CENTER });
     color_btn.connect('color-set', () => settings.set_border_color_rgba(color_btn.get_rgba().to_string()));
     color_row.add_suffix(color_btn);
+    color_row.activatable_widget = color_btn;
 
-    const preset_labels = BORDER_PRESETS.map(([label]) => label);
+    const preset_labels = [...BORDER_PRESETS.map(([label]) => label), 'Custom Color'];
     const match_preset = (color) => BORDER_PRESETS.findIndex(([, c]) => format_rgba(parse_rgba(c)) === color);
+    const init_idx = match_preset(settings.border_color_rgba());
     const [preset_row, preset_combo] = make_combo_row(
         'Quick Color Presets', 'One-click color presets matching Kelp active window borders',
-        preset_labels, match_preset(settings.border_color_rgba()),
+        preset_labels, init_idx >= 0 ? init_idx : BORDER_PRESETS.length,
         (idx) => {
             if (idx >= 0 && idx < BORDER_PRESETS.length) {
                 const css_color = BORDER_PRESETS[idx][1];
@@ -174,7 +178,10 @@ function build_appearance_page(ext_settings, settings, signals) {
         subtitle: 'Apply this accent border color to all installed Studio 2201 extensions (Coral, Kelp, Reef, Seabed, Tide)',
     });
     const sync_btn = new Gtk.Button({ label: 'Sync Suite Color', valign: Gtk.Align.CENTER, css_classes: ['pill'] });
-    sync_btn.connect('clicked', () => sync_color_across_suite(settings.border_color_rgba()));
+    sync_btn.connect('clicked', () => {
+        const count = sync_color_across_suite(settings.border_color_rgba());
+        sync_btn.set_label(`Synced (${count})`);
+    });
     sync_row.add_suffix(sync_btn);
     sync_row.activatable_widget = sync_btn;
 
@@ -210,7 +217,8 @@ function build_appearance_page(ext_settings, settings, signals) {
         const next_rgba = new Gdk.RGBA();
         if (next_rgba.parse(next_color) && !color_btn.get_rgba().equal(next_rgba)) color_btn.set_rgba(next_rgba);
         const next_idx = match_preset(next_color);
-        if (preset_combo.get_active() !== next_idx) preset_combo.set_active(next_idx);
+        const target_idx = next_idx >= 0 ? next_idx : BORDER_PRESETS.length;
+        if (preset_combo.get_active() !== target_idx) preset_combo.set_active(target_idx);
     };
     const s_keys = [
         'dash-max-icon-size', 'show-show-apps-button', 'show-apps-at-top', 'show-favorites', 'show-running',
@@ -232,11 +240,12 @@ export default class ReefPreferences extends ExtensionPreferences {
         window.add(build_behavior_page(ext_settings, settings, signals));
         window.add(build_appearance_page(ext_settings, settings, signals));
         window.add(build_clicks_page(ext_settings, settings, signals));
-        window.add(build_about_page());
-        window.connect('close-request', () => {
+        window.add(build_about_page(this.metadata?.['version-name']));
+        const cleanup = () => {
             for (const [obj, sig] of signals) obj.disconnect(sig);
             signals.length = 0;
-            return false;
-        });
+        };
+        window.connect('close-request', () => { cleanup(); return false; });
+        window.connect('destroy', cleanup);
     }
 }

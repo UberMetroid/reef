@@ -37,6 +37,7 @@ export function make_spin_row(title, subtitle, value, min, max, step, on_change)
     spin.set_valign(Gtk.Align.CENTER);
     spin.connect('value-changed', () => on_change(spin.get_value_as_int()));
     row.add_suffix(spin);
+    row.activatable_widget = spin;
     return [row, spin];
 }
 
@@ -47,6 +48,7 @@ export function make_combo_row(title, subtitle, items, active_idx, on_change) {
     combo.set_active(Math.max(0, active_idx));
     combo.connect('changed', () => on_change(combo.get_active()));
     row.add_suffix(combo);
+    row.activatable_widget = combo;
     return [row, combo];
 }
 
@@ -164,7 +166,7 @@ export function build_clicks_page(ext_settings, settings, signals) {
     return page;
 }
 
-export function build_about_page() {
+export function build_about_page(version_name = 'v1.3.0') {
     const page = new Adw.PreferencesPage({
         title: 'About & Support',
         icon_name: 'help-about-symbolic',
@@ -180,8 +182,9 @@ export function build_about_page() {
         title: 'Reef Release Version',
         subtitle: 'Zero-subprocess, zero-telemetry Wayland dock extension for GNOME Shell',
     });
+    const clean_ver = String(version_name || '1.3.0').replace(/^v/, '');
     ver_row.add_suffix(new Gtk.Label({
-        label: 'v1.2.0', valign: Gtk.Align.CENTER, css_classes: ['monospace'],
+        label: `v${clean_ver}`, valign: Gtk.Align.CENTER, css_classes: ['monospace'],
     }));
     header_group.add(ver_row);
 

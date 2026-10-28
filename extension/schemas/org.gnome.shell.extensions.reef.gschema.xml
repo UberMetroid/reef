@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<schemalist>
+<schemalist gettext-domain="reef@studio2201.github.io">
   <schema id="org.gnome.shell.extensions.reef" path="/org/gnome/shell/extensions/reef/">
     <key name="dock-position" type="s">
       <default>'BOTTOM'</default>

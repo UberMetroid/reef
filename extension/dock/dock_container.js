@@ -135,8 +135,8 @@ export class DockContainer {
     apply_layout_and_style() {
         this._sync_chrome();
         const extend = this.settings.extend_height(), tiles = this.settings.show_icon_background(), orient = Clutter.Orientation.HORIZONTAL;
-        const align = Clutter.ActorAlign.CENTER, fill = Clutter.ActorAlign.FILL;
-        this.actor.style_class = `reef-dock-container ${extend ? 'reef-dock-panel' : 'reef-dock-pill'} reef-dock-horizontal${tiles ? ' reef-icon-tiles' : ''}`;
+        const align = Clutter.ActorAlign.CENTER, fill = Clutter.ActorAlign.FILL, light = !this.settings.is_dark();
+        this.actor.style_class = `reef-dock-container ${extend ? 'reef-dock-panel' : 'reef-dock-pill'} reef-dock-horizontal${tiles ? ' reef-icon-tiles' : ''}${light ? ' reef-dock-light' : ''}`;
         this.actor.orientation = orient;
         if (!extend) {
             for (const a of [this.actor, this.dash, this.dash._dashContainer, this.dash._background]) {

@@ -1,3 +1,6 @@
+/* SPDX-License-Identifier: GPL-3.0-or-later */
+/* Reef compositor stylesheet for floating dock pill, panel mode, and light/dark icon tiles. */
+
 .reef-dock-container {
     margin: 0px;
     padding: 0px;
@@ -63,9 +66,34 @@
     background-color: rgba(255, 255, 255, 0.14);
 }
 
+.reef-dock-container.reef-dock-light #dash .dash-item-container .app-well-app:hover .overview-icon,
+.reef-dock-container.reef-dock-light #dash .dash-item-container .app-well-app:focus .overview-icon,
+.reef-dock-container.reef-dock-light #dash .dash-item-container .app-well-app:active .overview-icon,
+.reef-dock-container.reef-dock-light #dash .dash-item-container .app-well-app:checked .overview-icon,
+.reef-dock-container.reef-dock-light #dash .dash-item-container .overview-tile:hover .overview-icon,
+.reef-dock-container.reef-dock-light #dash .dash-item-container .overview-tile:focus .overview-icon,
+.reef-dock-container.reef-dock-light #dash .dash-item-container .overview-tile:active .overview-icon,
+.reef-dock-container.reef-dock-light #dash .dash-item-container .overview-tile:checked .overview-icon,
+.reef-dock-container.reef-dock-light #dash .dash-item-container .show-apps:hover .overview-icon,
+.reef-dock-container.reef-dock-light #dash .dash-item-container .show-apps:focus .overview-icon,
+.reef-dock-container.reef-dock-light #dash .dash-item-container .show-apps:active .overview-icon,
+.reef-dock-container.reef-dock-light #dash .dash-item-container .show-apps:checked .overview-icon {
+    background-color: rgba(0, 0, 0, 0.12);
+    color: #1c1c20;
+}
+
+.reef-dock-container.reef-dock-light #dash .dash-item-container .show-apps .overview-icon {
+    color: #1c1c20;
+}
+
 .reef-dock-container.reef-icon-tiles #dash .dash-item-container .app-well-app .overview-icon,
 .reef-dock-container.reef-icon-tiles #dash .dash-item-container .overview-tile .overview-icon {
     background-color: rgba(255, 255, 255, 0.08);
+}
+
+.reef-dock-container.reef-dock-light.reef-icon-tiles #dash .dash-item-container .app-well-app .overview-icon,
+.reef-dock-container.reef-dock-light.reef-icon-tiles #dash .dash-item-container .overview-tile .overview-icon {
+    background-color: rgba(0, 0, 0, 0.07);
 }
 
 .reef-dock-container.reef-icon-tiles #dash .dash-item-container .app-well-app:hover .overview-icon,
@@ -79,11 +107,20 @@
     background-color: rgba(255, 255, 255, 0.16);
 }
 
+.reef-dock-container.reef-dock-light.reef-icon-tiles #dash .dash-item-container .app-well-app:hover .overview-icon,
+.reef-dock-container.reef-dock-light.reef-icon-tiles #dash .dash-item-container .app-well-app:focus .overview-icon,
+.reef-dock-container.reef-dock-light.reef-icon-tiles #dash .dash-item-container .app-well-app:active .overview-icon,
+.reef-dock-container.reef-dock-light.reef-icon-tiles #dash .dash-item-container .app-well-app:checked .overview-icon,
+.reef-dock-container.reef-dock-light.reef-icon-tiles #dash .dash-item-container .overview-tile:hover .overview-icon,
+.reef-dock-container.reef-dock-light.reef-icon-tiles #dash .dash-item-container .overview-tile:focus .overview-icon,
+.reef-dock-container.reef-dock-light.reef-icon-tiles #dash .dash-item-container .overview-tile:active .overview-icon,
+.reef-dock-container.reef-dock-light.reef-icon-tiles #dash .dash-item-container .overview-tile:checked .overview-icon {
+    background-color: rgba(0, 0, 0, 0.15);
+}
+
 .reef-dock-container #dash .dash-item-container .app-grid-running-dot {
     width: 6px;
     height: 6px;
     border-radius: 99px;
     margin-bottom: 2px;
 }
-
-

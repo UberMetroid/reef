@@ -113,7 +113,7 @@ function verify_process_boundaries_and_invariants() {
         'FOCUSED_WINDOW', 'MAXIMIZED_ONLY', '"45"', '"50"', '"settings-schema": "org.gnome.shell.extensions.reef"',
         'name="dock-position"', 'name="intellihide-mode"', 'name="border-color-rgba"', 'name="dock-margin"',
         "'rgb(255,0,0)'", 'Gruvbox Amber', 'Kelp Emerald', 'Ocean Cyan', 'Coral Red',
-        'v1.2.0', 'match_preset(', 'Screen Edge &amp; Intelligent Auto-Hide',
+        'v1.3.0', 'match_preset(', 'Screen Edge &amp; Intelligent Auto-Hide',
         '"name": "Studio 2201: Reef (Dock & Panel)"', 'Sync Color Across Suite', 'sync_color_across_suite',
         'Support &amp; Community', 'Adw.ActionRow({ title: gesture, subtitle: desc })',
         'this.unload_theme()', 'load_stylesheet(file)', 'sizer.clear_constraints()',
