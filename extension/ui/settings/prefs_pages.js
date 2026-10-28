@@ -166,7 +166,7 @@ export function build_clicks_page(ext_settings, settings, signals) {
     return page;
 }
 
-export function build_about_page(version_name = 'v1.3.0') {
+export function build_about_page(version_name = 'v1.4.0') {
     const page = new Adw.PreferencesPage({
         title: 'About & Support',
         icon_name: 'help-about-symbolic',
@@ -182,7 +182,7 @@ export function build_about_page(version_name = 'v1.3.0') {
         title: 'Reef Release Version',
         subtitle: 'Zero-subprocess, zero-telemetry Wayland dock extension for GNOME Shell',
     });
-    const clean_ver = String(version_name || '1.3.0').replace(/^v/, '');
+    const clean_ver = String(version_name || '1.4.0').replace(/^v/, '');
     ver_row.add_suffix(new Gtk.Label({
         label: `v${clean_ver}`, valign: Gtk.Align.CENTER, css_classes: ['monospace'],
     }));

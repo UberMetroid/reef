@@ -64,7 +64,7 @@ export function build_running_dot_css(settings, win_count) {
     if (count <= 0) return '';
     const color = format_rgba(parse_rgba(settings.border_color_rgba()));
     const width = count >= 2 ? 14 : 6;
-    return `background-color: ${color}; width: ${width}px; height: 6px; border-radius: 99px; margin-bottom: 2px;`;
+    return `background-color: ${color}; width: ${width}px; height: 6px; border-radius: 99px; offset-y: 0px; margin-bottom: 1px;`;
 }
 
 export function build_separator_css(is_vertical, icon_size, is_dark) {

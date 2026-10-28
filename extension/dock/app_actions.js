@@ -133,6 +133,7 @@ export class AppActionsController {
                 if (!app_icon._dot) return;
                 const iso = this.settings.isolate_workspaces(), wins = get_app_windows(app_icon.app, iso);
                 app_icon._dot.style = build_running_dot_css(this.settings, wins.length);
+                app_icon._dot.translation_y = 0;
                 app_icon._dot.visible = iso ? wins.length > 0 : (app_icon.app.state !== 0 || wins.length > 0);
             };
             sync_dot();

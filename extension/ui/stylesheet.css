@@ -45,7 +45,7 @@
 .reef-dock-container #dash .dash-item-container .app-well-app .overview-icon,
 .reef-dock-container #dash .dash-item-container .overview-tile .overview-icon,
 .reef-dock-container #dash .dash-item-container .show-apps .overview-icon {
-    margin: 0px;
+    margin: 0px 0px 8px 0px;
     padding: 6px;
     border-radius: 12px;
 }
@@ -122,5 +122,6 @@
     width: 6px;
     height: 6px;
     border-radius: 99px;
-    margin-bottom: 2px;
+    offset-y: 0px;
+    margin-bottom: 1px;
 }

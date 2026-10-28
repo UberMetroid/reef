@@ -114,12 +114,12 @@ export class DockContainer {
     }
     _sync_sizer_constraints() {
         const sizer = this.dash._background?.get_first_child?.(), dc = this.dash._dashContainer;
-        const first = this.dash._box?.get_first_child?.()?.child?._delegate?.icon, sa = this.dash._showAppsIcon?.icon;
+        const first = this.dash._box?.get_first_child?.()?.child, sa = this.dash._showAppsIcon?.toggleButton ?? this.dash._showAppsIcon?.icon;
         const icon_src = (this.settings.show_show_apps_button() ? sa : first) ?? sa;
         if (!sizer || !icon_src || !dc) return;
         const extend = this.settings.extend_height();
         sizer.clear_constraints();
-        sizer.add_constraint(new Clutter.BindConstraint({ source: icon_src, coordinate: Clutter.BindCoordinate.HEIGHT }));
+        sizer.add_constraint(new Clutter.BindConstraint({ source: dc, coordinate: Clutter.BindCoordinate.HEIGHT }));
         sizer.add_constraint(new Clutter.BindConstraint({ source: extend ? this.actor : dc, coordinate: Clutter.BindCoordinate.WIDTH }));
     }
     _sync_chrome() {
@@ -166,7 +166,7 @@ export class DockContainer {
         }
         this._sync_sizer_constraints();
         const mon = this.monitor, scale = St.ThemeContext.get_for_stage(global.stage).scale_factor || 1;
-        const cross_px = Math.round((this.settings.dash_max_icon_size() + 28) * scale);
+        const cross_px = Math.round((this.settings.dash_max_icon_size() + 36) * scale);
         const span_px = mon ? Math.round(mon.width * (extend ? 1.0 : 0.92)) : 640;
         this.dash.iconSize = 0;
         if (mon) this.dash.setMaxSize(span_px, cross_px);
